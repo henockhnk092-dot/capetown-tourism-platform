@@ -1,44 +1,35 @@
 # capetown tourism platform
 
-> Project demonstrating technical skills and practical implementation
+> **Project demonstrating technical skills and practical implementation**
 
-## 📋 Table of Contents
-- [Overview](#overview)
-- [Technologies](#technologies)
-- [Features](#features)
-- [Technical Skills](#technical-skills)
-- [External Links](#external-links)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Status](#project-status)
-- [Keywords](#keywords)
+---
 
-## 🎯 Overview
-
-**Project Name:** capetown tourism platform
+## 📋 Overview
 
 **Categories:** Web Development
 
+**Technologies:** JavaScript
+
 **Project Period:** November 2025 - November 2025
 
-**Status:** Completed and Maintained
+**Status:** Completed and Maintained | **Last Updated:** November 2025
 
-**Last Updated:** November 2025
+---
 
-### Description
+## 🚀 Description
 
 Project demonstrating technical skills and practical implementation
 
-## 🚀 Technologies
+---
 
-JavaScript
-
-## ✨ Features
+## 💡 Project Highlights
 
 - Successfully developed and deployed capetown tourism platform
 - Implemented using JavaScript
 - Demonstrated proficiency in Web Development
 - Received 1 star from the developer community
+
+---
 
 ## 🛠️ Technical Skills
 
@@ -50,46 +41,32 @@ JavaScript
 - Version Control (Git/GitHub)
 - Project Management
 
-## 🔗 External Links
+---
 
-Live Deployment (Netlify):
-- https://app.netlify.com/drop
-- https://app.netlify.com/
-- https://capetown-tourism.netlify.app/
+## 🔗 Links & Resources
 
-Video Tutorials/Demos (YouTube):
-- https://www.youtube.com/playlist?list=PLrZbkNpNVSwzyXZ9pyZ0JZCcaW3tMawup
+### 🌐 Live Deployments
+- [https://app.netlify.com/drop](https://app.netlify.com/drop)
+- [https://app.netlify.com/](https://app.netlify.com/)
+- [https://capetown-tourism.netlify.app/](https://capetown-tourism.netlify.app/)
 
-Other Resources:
-- https://tiktok.com/@codingfever
-- https://instagram.com/hhnk.3693
-- https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
-- http://localhost:5173
-- https://www.openstreetmap.org/copyright
+### 📺 Video Tutorials
+- [https://www.youtube.com/playlist?list=PLrZbkNpNVSwzyXZ9pyZ0JZCcaW3tMawup](https://www.youtube.com/playlist?list=PLrZbkNpNVSwzyXZ9pyZ0JZCcaW3tMawup)
 
-## 📦 Installation
+### 🔧 Other Resources
+- [https://tiktok.com/@codingfever](https://tiktok.com/@codingfever)
+- [https://instagram.com/hhnk.3693](https://instagram.com/hhnk.3693)
+- [https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png](https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png)
+- [http://localhost:5173](http://localhost:5173)
+- [https://www.openstreetmap.org/copyright](https://www.openstreetmap.org/copyright)
 
-```bash
-# Clone the repository
-git clone https://github.com/HorizonHnk/capetown-tourism-platform
+---
 
-# Navigate to the project directory
-cd capetown-tourism-platform
+## 📦 Repository
 
-# Install dependencies (if applicable)
-# npm install
-# or
-# pip install -r requirements.txt
-```
+**GitHub:** [https://github.com/HorizonHnk/capetown-tourism-platform](https://github.com/HorizonHnk/capetown-tourism-platform)
 
-## 💻 Usage
-
-Please refer to the project-specific documentation for detailed usage instructions.
-
-## 📊 Project Status
-
-- **Status:** Completed and Maintained
-- **Last Updated:** November 2025
+---
 
 ## 🏷️ Keywords
 
@@ -102,16 +79,8 @@ JavaScript, Web Development, Software Development, Computer Engineering, Technic
 **Henock Mukonkole (HorizonHnk)**
 
 - GitHub: [@henockhnk092-dot](https://github.com/henockhnk092-dot/)
-- Portfolio: [86 Technical Projects](https://github.com/henockhnk092-dot/)
-
-## 📄 License
-
-This project is part of my professional portfolio. Please contact me for licensing information.
-
-## 🤝 Contributing
-
-This is a portfolio project, but feedback and suggestions are always welcome!
+- Portfolio: [90 Technical Projects](https://github.com/henockhnk092-dot/)
 
 ---
 
-*Generated as part of HorizonHnk's GitHub Portfolio Restoration Project*
+*Part of my professional portfolio showcasing expertise in Web Development*
