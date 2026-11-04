@@ -54,7 +54,9 @@ const loadSaved = () => {
 };
 
 const SpeechRecognition = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
-const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
+const hasBrowserVoice = typeof window !== 'undefined' && 'speechSynthesis' in window;
+// Natural South African voice from Azure (via /api/tts); the browser voice is the fallback
+const canSpeak = typeof window !== 'undefined' && (typeof Audio !== 'undefined' || hasBrowserVoice);
 
 const AIAssistant = () => {
   const [messages, setMessages] = useState(loadSaved);
@@ -66,6 +68,7 @@ const AIAssistant = () => {
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
+  const audioRef = useRef(null);
 
   const hasConversation = messages.length > 1;
 
@@ -81,7 +84,8 @@ const AIAssistant = () => {
 
   // Stop speech and listening when leaving the page
   useEffect(() => () => {
-    if (canSpeak) window.speechSynthesis.cancel();
+    audioRef.current?.pause();
+    if (hasBrowserVoice) window.speechSynthesis.cancel();
     recognitionRef.current?.abort();
   }, []);
 
@@ -94,14 +98,20 @@ const AIAssistant = () => {
   }, [input]);
 
   const stopSpeaking = () => {
-    if (canSpeak) window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (hasBrowserVoice) window.speechSynthesis.cancel();
     setSpeaking({ index: null, paused: false });
   };
 
-  const speak = (text, index) => {
-    if (!canSpeak) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(plainText(text));
+  const speakWithBrowser = (text, index) => {
+    if (!hasBrowserVoice) {
+      setSpeaking({ index: null, paused: false });
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.95;
     utterance.onend = () => setSpeaking({ index: null, paused: false });
     utterance.onerror = () => setSpeaking({ index: null, paused: false });
@@ -109,7 +119,41 @@ const AIAssistant = () => {
     window.speechSynthesis.speak(utterance);
   };
 
+  const speak = async (text, index) => {
+    stopSpeaking();
+    const words = plainText(text);
+    setSpeaking({ index, paused: false, loading: true });
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: words }),
+      });
+      if (!res.ok) throw new Error(res.status);
+      const url = URL.createObjectURL(await res.blob());
+      const audio = new Audio(url);
+      const done = () => {
+        URL.revokeObjectURL(url);
+        if (audioRef.current === audio) audioRef.current = null;
+        setSpeaking((s) => (s.index === index ? { index: null, paused: false } : s));
+      };
+      audio.onended = done;
+      audio.onerror = done;
+      audioRef.current = audio;
+      await audio.play();
+      setSpeaking({ index, paused: false });
+    } catch {
+      speakWithBrowser(words, index);
+    }
+  };
+
   const togglePause = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      if (audio.paused) audio.play(); else audio.pause();
+      setSpeaking((s) => ({ ...s, paused: !audio.paused }));
+      return;
+    }
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
       setSpeaking((s) => ({ ...s, paused: false }));
@@ -302,7 +346,7 @@ const AIAssistant = () => {
                                 <button type="button" onClick={stopSpeaking} className={iconButton} title="Stop">
                                   <Square className="h-4 w-4" />
                                 </button>
-                                <span className="text-xs text-amber-600 ml-1">{speaking.paused ? 'Paused' : 'Speaking…'}</span>
+                                <span className="text-xs text-amber-600 ml-1">{speaking.loading ? 'Loading voice…' : speaking.paused ? 'Paused' : 'Speaking…'}</span>
                               </>
                             )}
                             <button type="button" onClick={() => copyText(plainText(message.content), index)} className={iconButton} title="Copy">

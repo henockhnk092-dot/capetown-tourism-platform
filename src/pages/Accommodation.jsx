@@ -436,6 +436,28 @@ const Accommodation = () => {
       }).catch(() => {});
     }
 
+    // Confirmation email to the guest (sent by /api/booking-email to their verified address only)
+    const emailGuest = async () => {
+      const isStay = activeTab === 'hotels';
+      const d = bookingDetails;
+      const details = (isStay
+        ? [['Check-in', d.checkIn], ['Check-out', d.checkOut], ['Guests', d.guests], ['Rooms', d.rooms]]
+        : [['Date', d.date], ['Time', d.time], ['Party size', d.partySize]]
+      ).concat([['Estimated total', `R${totalPrice.toLocaleString()}`], ['Special requests', d.specialRequests]])
+        .filter(([, value]) => value !== '' && value != null);
+      try {
+        const token = await user.getIdToken();
+        await fetch('/api/booking-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ venue: selectedItem?.name, reference: bookingNumber, details }),
+        });
+      } catch {
+        // the request is still saved and HNK is notified; the email is a bonus
+      }
+    };
+    emailGuest();
+
     try {
       const docRef = await addDoc(collection(db, 'bookings'), {
         ...confirmation,
