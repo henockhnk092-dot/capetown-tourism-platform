@@ -1,0 +1,17 @@
+{
+  "name": "Cape Town Tourism Platform",
+  "short_name": "Cape Town",
+  "description": "Attractions, places to stay, events, safety tips and an AI travel assistant for Cape Town.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "lang": "en-ZA",
+  "categories": ["travel", "navigation"],
+  "icons": [
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

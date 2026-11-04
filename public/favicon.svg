@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sky)"/>
+  <circle cx="45" cy="21" r="7" fill="#fde68a"/>
+  <!-- Table Mountain with Devil's Peak and Lion's Head -->
+  <path d="M0 46 L6 40 L10 30 L15 27 L44 27 L48 31 L52 38 L57 34 L64 42 L64 64 L0 64 Z" fill="#1e293b"/>
+  <path d="M0 50 Q16 47 32 50 T64 50 L64 64 L0 64 Z" fill="#0369a1"/>
+  <path d="M0 55 Q16 52 32 55 T64 55" fill="none" stroke="#7dd3fc" stroke-width="1.5"/>
+</svg>
