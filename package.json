@@ -9,7 +9,7 @@
     "indexnow": "node scripts/indexnow.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && npx -y wrangler@4.157.0 pages deploy dist --project-name=capetown-tourism --branch=production"
+    "deploy": "npm run build && node scripts/deploy.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
