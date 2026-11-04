@@ -4,6 +4,7 @@ import { FEATURED_ATTRACTIONS, ATTRACTION_CATEGORIES, PRICE_RANGES } from '../ut
 import { useFavorites } from '../context/FavoritesContext';
 import { Heart } from 'lucide-react';
 import LeafletMap from '../components/map/LeafletMap';
+import PageHero from '../components/common/PageHero';
 
 const Attractions = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,15 +46,11 @@ const Attractions = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Explore Cape Town Attractions</h1>
-          <p className="text-xl text-gray-600">
-            Discover {FEATURED_ATTRACTIONS.length}+ amazing places to visit in Cape Town
-          </p>
-        </div>
-      </div>
+      <PageHero
+        image="attractions"
+        title="Explore Cape Town Attractions"
+        subtitle={`Discover ${FEATURED_ATTRACTIONS.length} must-see places to visit in Cape Town`}
+      />
 
       {/* Search and Filter Bar */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">

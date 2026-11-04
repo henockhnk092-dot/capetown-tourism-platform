@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Hotel, UtensilsCrossed, MapPin, Star, DollarSign, Search, Filter, Calendar, Users, Sparkles, Heart, X, Grid, List, ChevronDown, Phone, Mail, Clock, Check, Share2, Eye, ChevronLeft, ChevronRight, Copy, CheckCircle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PageHero from '../components/common/PageHero';
 import { generateChatResponse } from '../services/geminiAI';
 import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../services/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { BUSINESS } from '../utils/constants';
+import { BUSINESS, API_ENDPOINTS } from '../utils/constants';
 
 // Sample data for hotels
 const HOTELS = [
@@ -415,6 +416,26 @@ const Accommodation = () => {
       paymentMethod: 'pay_at_venue'
     };
 
+    // Email the request to HNK through the contact form service, so someone can confirm it
+    // with the venue. A failure here must not block the guest's request.
+    if (API_ENDPOINTS.formspree) {
+      const details = Object.entries(bookingDetails)
+        .filter(([, value]) => value !== '' && value != null)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+      fetch(API_ENDPOINTS.formspree, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: `New reservation request ${bookingNumber}: ${selectedItem?.name}`,
+          email: user.email,
+          name: user.displayName || user.email,
+          message: `${activeTab === 'hotels' ? 'Stay' : 'Table'} request for ${selectedItem?.name}\n` +
+            `Reference: ${bookingNumber}\nEstimated total: R${totalPrice}\n\n${details}`,
+        }),
+      }).catch(() => {});
+    }
+
     try {
       const docRef = await addDoc(collection(db, 'bookings'), {
         ...confirmation,
@@ -744,23 +765,12 @@ const Accommodation = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - Responsive */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white py-8 sm:py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">
-              Find Your Perfect Stay & Dining
-            </h1>
-            <p className="text-sm sm:text-base md:text-xl text-gray-300 max-w-3xl mx-auto px-2">
-              Discover the best hotels, guesthouses, and restaurants in Cape Town
-            </p>
-          </motion.div>
-        </div>
-      </div>
+      <PageHero
+        image="accommodation"
+        align="center"
+        title="Find Your Perfect Stay & Dining"
+        subtitle="Discover the best hotels, guesthouses, and restaurants in Cape Town"
+      />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Tabs - Responsive */}

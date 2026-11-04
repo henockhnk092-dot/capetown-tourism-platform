@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../services/firebase';
 import { collection, query, where, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
+import { toast } from '../components/common/Toaster';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -29,7 +30,6 @@ const MyBookings = () => {
   const loadBookings = async () => {
     try {
       setLoading(true);
-      console.log('Loading bookings for user:', user.uid);
 
       // Try with orderBy first (requires composite index)
       try {
@@ -46,7 +46,6 @@ const MyBookings = () => {
         }));
 
         setBookings(firestoreBookings);
-        console.log('✅ Loaded bookings from Firestore (with orderBy):', firestoreBookings.length);
         return;
       } catch (indexError) {
         console.warn('⚠️ Composite index not available, trying without orderBy:', indexError.message);
@@ -71,7 +70,6 @@ const MyBookings = () => {
         });
 
         setBookings(firestoreBookings);
-        console.log('✅ Loaded bookings from Firestore (without orderBy):', firestoreBookings.length);
       }
     } catch (error) {
       console.error('❌ Error loading bookings from Firestore:', error);
@@ -81,7 +79,6 @@ const MyBookings = () => {
       const savedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
       savedBookings.sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt));
       setBookings(savedBookings);
-      console.log('📦 Loaded bookings from localStorage:', savedBookings.length);
     } finally {
       setLoading(false);
     }
@@ -93,7 +90,6 @@ const MyBookings = () => {
         // Delete from Firestore if we have an ID
         if (bookingId) {
           await deleteDoc(doc(db, 'bookings', bookingId));
-          console.log('Booking deleted from Firestore');
         }
 
         // Update local state
@@ -106,7 +102,7 @@ const MyBookings = () => {
         localStorage.setItem('bookings', JSON.stringify(updatedLocalBookings));
       } catch (error) {
         console.error('Error deleting booking:', error);
-        alert('Failed to delete booking. Please try again.');
+        toast('Failed to delete booking. Please try again.', 'error');
       }
     }
   };
@@ -123,7 +119,6 @@ const MyBookings = () => {
         });
 
         await Promise.all(deletePromises);
-        console.log('All bookings deleted from Firestore');
 
         // Clear local state
         setBookings([]);
@@ -132,7 +127,7 @@ const MyBookings = () => {
         localStorage.removeItem('bookings');
       } catch (error) {
         console.error('Error clearing bookings:', error);
-        alert('Failed to clear all bookings. Please try again.');
+        toast('Failed to clear all bookings. Please try again.', 'error');
       }
     }
   };

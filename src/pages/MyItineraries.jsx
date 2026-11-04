@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { db } from '../services/firebase';
 import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { toast } from '../components/common/Toaster';
 
 const MyItineraries = () => {
   const { user } = useAuth();
@@ -22,7 +23,6 @@ const MyItineraries = () => {
   const loadItineraries = async () => {
     try {
       setLoading(true);
-      console.log('Loading itineraries for user:', user.uid);
 
       // Query itineraries from Firestore
       const itinerariesQuery = query(
@@ -44,7 +44,6 @@ const MyItineraries = () => {
       });
 
       setItineraries(firestoreItineraries);
-      console.log('✅ Loaded itineraries from Firestore:', firestoreItineraries.length);
     } catch (error) {
       console.error('❌ Error loading itineraries from Firestore:', error);
 
@@ -52,7 +51,6 @@ const MyItineraries = () => {
       const saved = localStorage.getItem(`itineraries_${user.uid}`);
       if (saved) {
         setItineraries(JSON.parse(saved));
-        console.log('📦 Loaded itineraries from localStorage');
       }
     } finally {
       setLoading(false);
@@ -71,7 +69,6 @@ const MyItineraries = () => {
     try {
       // Delete from Firestore
       await deleteDoc(doc(db, 'itineraries', id));
-      console.log('✅ Itinerary deleted from Firestore');
 
       // Update local state
       const updated = itineraries.filter(itinerary => itinerary.id !== id);
@@ -83,7 +80,7 @@ const MyItineraries = () => {
       }
     } catch (error) {
       console.error('❌ Error deleting itinerary:', error);
-      alert('Failed to delete itinerary. Please try again.');
+      toast('Failed to delete itinerary. Please try again.', 'error');
     }
   };
 

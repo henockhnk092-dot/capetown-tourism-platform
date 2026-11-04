@@ -236,7 +236,27 @@ export const NAV_ITEMS = [
   { name: 'Safety Tips', path: '/safety', icon: '🛡️' },
   { name: 'Events Calendar', path: '/events', icon: '🎉' },
   { name: 'Resources', path: '/resources', icon: '📚' },
+  { name: 'About', path: '/about', icon: 'ℹ️' },
   { name: 'Contact', path: '/contact', icon: '📧' }
+];
+
+// Header menu: the same groups are used on desktop (dropdowns) and mobile (sections)
+const navItem = (path) => NAV_ITEMS.find((item) => item.path === path);
+export const NAV_GROUPS = [
+  { name: 'Home', path: '/' },
+  {
+    name: 'Explore',
+    items: ['/attractions', '/accommodation', '/events', '/blog'].map(navItem),
+  },
+  {
+    name: 'Plan',
+    items: ['/ai-assistant', '/planner', '/transportation'].map(navItem),
+  },
+  {
+    name: 'Travel Info',
+    items: ['/safety', '/resources', '/about'].map(navItem),
+  },
+  { name: 'Contact', path: '/contact' },
 ];
 
 // API Endpoints

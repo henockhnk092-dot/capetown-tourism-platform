@@ -1,5 +1,6 @@
 import { Shield, AlertTriangle, Phone, MapPin, Sun, Heart } from 'lucide-react';
 import { EMERGENCY_CONTACTS } from '../utils/constants';
+import PageHero from '../components/common/PageHero';
 
 const Safety = () => {
   const safetyTips = [
@@ -49,15 +50,11 @@ const Safety = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Safety Tips for Cape Town</h1>
-          <p className="text-xl text-gray-600">
-            Stay safe and enjoy your visit with these important guidelines
-          </p>
-        </div>
-      </div>
+      <PageHero
+        image="safety"
+        title="Safety Tips for Cape Town"
+        subtitle="Stay safe and enjoy your visit with these important guidelines"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Important Notice */}

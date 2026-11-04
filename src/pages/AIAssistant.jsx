@@ -1,359 +1,461 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Loader2, MessageCircle, Lightbulb, Trash2, Volume2, Pause, Square } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  Send, Sparkles, Loader2, Volume2, Pause, Square, Copy, Check, RotateCcw, Mic, MicOff,
+  Mountain, Waves, CalendarDays, Wallet, Wine, Route, ShieldCheck, Bus, CalendarRange, ArrowRight,
+} from 'lucide-react';
+import PageHero from '../components/common/PageHero';
 import { generateChatResponse } from '../services/geminiAI';
 
+const STORAGE_KEY = 'ct-ai-chat';
+const HISTORY_TURNS = 8; // earlier messages sent with each question, so follow-ups make sense
+
+const WELCOME = {
+  role: 'assistant',
+  content: "Hi! 👋 I'm your **Cape Town** travel guide. Ask me about attractions, beaches, food, budgets, safety or getting around.",
+};
+
+const SUGGESTIONS = [
+  { Icon: Mountain, label: 'Top attractions', question: 'What are the top 5 must-see attractions in Cape Town?' },
+  { Icon: Waves, label: 'Best beaches', question: 'Which are the best beaches in Cape Town?' },
+  { Icon: CalendarDays, label: 'When to visit', question: 'When is the best time of year to visit Cape Town?' },
+  { Icon: Wallet, label: 'Budget tips', question: 'What are some budget-friendly things to do in Cape Town?' },
+  { Icon: Wine, label: 'Wine regions', question: 'Which wine regions near Cape Town should I visit?' },
+  { Icon: Route, label: '3-day itinerary', question: 'Can you suggest a 3-day Cape Town itinerary?' },
+];
+
+const TOPICS = ['Table Mountain', 'Robben Island', 'Cape Point', 'Winelands', 'Boulders Beach penguins', 'V&A Waterfront'];
+
+const TIPS = [
+  'Ask short, specific questions for the best answers.',
+  'Follow-up questions work: the assistant remembers this chat.',
+  'Tap the speaker on any reply to hear it read aloud.',
+];
+
+const escapeHtml = (text) =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// Minimal formatting for replies: **bold**, bullet lines and line breaks
+const formatReply = (text) =>
+  escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+    .replace(/^\s*[•*-]\s+(.*)$/gm, '<span class="flex gap-2"><span class="text-amber-500">•</span><span>$1</span></span>')
+    .replace(/\n/g, '<br/>');
+
+const plainText = (text) => text.replace(/\*\*/g, '').replace(/•/g, '').trim();
+
+const loadSaved = () => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+    return Array.isArray(saved) && saved.length ? saved : [WELCOME];
+  } catch {
+    return [WELCOME];
+  }
+};
+
+const SpeechRecognition = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
 const AIAssistant = () => {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: "Hi! 👋 I'm your **Cape Town** AI travel assistant.\n\nI can help you with:\n\n• **Attractions** & activities\n• **Itineraries** & planning\n• **Budget** tips & costs\n• **Beaches**, wine tours & more\n\nWhat would you like to explore?"
-    }
-  ]);
+  const [messages, setMessages] = useState(loadSaved);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const messagesEndRef = useRef(null);
-  const speechSynthesisRef = useRef(null);
+  const [speaking, setSpeaking] = useState({ index: null, paused: false });
+  const [copied, setCopied] = useState(null);
+  const [listening, setListening] = useState(false);
+  const listRef = useRef(null);
+  const inputRef = useRef(null);
+  const recognitionRef = useRef(null);
 
-  const scrollToBottom = () => {
-    // Scroll only the message list, not the whole page
-    const list = messagesEndRef.current?.parentElement;
+  const hasConversation = messages.length > 1;
+
+  useEffect(() => {
+    const list = listRef.current;
     if (list) list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
-  };
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      // storage unavailable (private mode): the chat still works, it just isn't kept
+    }
+  }, [messages, isLoading]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Clean up speech synthesis on unmount
-  useEffect(() => {
-    return () => {
-      if (speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
-      }
-    };
+  // Stop speech and listening when leaving the page
+  useEffect(() => () => {
+    if (canSpeak) window.speechSynthesis.cancel();
+    recognitionRef.current?.abort();
   }, []);
 
-  // Clear chat function
-  const handleClearChat = () => {
-    setMessages([
-      {
-        role: 'assistant',
-        content: "Hi! 👋 I'm your **Cape Town** AI travel assistant.\n\nI can help you with:\n\n• **Attractions** & activities\n• **Itineraries** & planning\n• **Budget** tips & costs\n• **Beaches**, wine tours & more\n\nWhat would you like to explore?"
-      }
-    ]);
-    // Stop any ongoing speech
-    if (isSpeaking) {
-      handleStopSpeaking();
-    }
+  // Grow the textarea with its content (up to 5 lines)
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+  }, [input]);
+
+  const stopSpeaking = () => {
+    if (canSpeak) window.speechSynthesis.cancel();
+    setSpeaking({ index: null, paused: false });
   };
 
-  // Text-to-speech functions
-  const handlePlaySpeech = (text) => {
-    // Stop any ongoing speech
+  const speak = (text, index) => {
+    if (!canSpeak) return;
     window.speechSynthesis.cancel();
-
-    // Remove HTML tags and formatting for better speech
-    const cleanText = text
-      .replace(/<[^>]*>/g, '')
-      .replace(/\*\*/g, '')
-      .replace(/•/g, '');
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setIsPaused(false);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setIsPaused(false);
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setIsPaused(false);
-    };
-
-    speechSynthesisRef.current = utterance;
+    const utterance = new SpeechSynthesisUtterance(plainText(text));
+    utterance.rate = 0.95;
+    utterance.onend = () => setSpeaking({ index: null, paused: false });
+    utterance.onerror = () => setSpeaking({ index: null, paused: false });
+    setSpeaking({ index, paused: false });
     window.speechSynthesis.speak(utterance);
   };
 
-  const handlePauseSpeech = () => {
-    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-      window.speechSynthesis.pause();
-      setIsPaused(true);
-    }
-  };
-
-  const handleResumeSpeech = () => {
+  const togglePause = () => {
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
-      setIsPaused(false);
+      setSpeaking((s) => ({ ...s, paused: false }));
+    } else {
+      window.speechSynthesis.pause();
+      setSpeaking((s) => ({ ...s, paused: true }));
     }
   };
 
-  const handleStopSpeaking = () => {
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-    setIsPaused(false);
+  const copyText = async (text, key) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(key);
+      setTimeout(() => setCopied(null), 1500);
+    } catch {
+      setCopied(null);
+    }
   };
 
-  const suggestedQuestions = [
-    "Top 5 must-see attractions?",
-    "Best beaches in Cape Town?",
-    "When to visit Cape Town?",
-    "Budget-friendly activities?",
-    "Best wine regions?",
-    "3-day itinerary ideas?"
-  ];
+  const copyChat = () =>
+    copyText(
+      messages.map((m) => `${m.role === 'user' ? 'You' : 'Cape Town Guide'}: ${plainText(m.content)}`).join('\n\n'),
+      'chat'
+    );
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = input.trim();
+  const newChat = () => {
+    stopSpeaking();
+    setMessages([WELCOME]);
     setInput('');
+    inputRef.current?.focus();
+  };
 
-    // Add user message
-    const newMessages = [
-      ...messages,
-      { role: 'user', content: userMessage }
-    ];
-    setMessages(newMessages);
+  const send = async (text = input) => {
+    const question = text.trim();
+    if (!question || isLoading) return;
+
+    setInput('');
+    const history = messages
+      .slice(1)
+      .slice(-HISTORY_TURNS)
+      .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${plainText(m.content)}`);
+    const next = [...messages, { role: 'user', content: question }];
+    setMessages(next);
     setIsLoading(true);
 
     try {
-      // Get AI response (simplified call like the widget)
-      const response = await generateChatResponse(userMessage);
-
-      // Add AI response
-      setMessages([...newMessages, { role: 'assistant', content: response }]);
+      const reply = await generateChatResponse(question, history);
+      setMessages([...next, { role: 'assistant', content: reply }]);
     } catch (error) {
-      // Better error handling with specific messages
-      let errorMessage = 'Sorry, I encountered an error. Please try again later.';
-
-      if (error.message?.includes('429') || error.message?.includes('Resource exhausted')) {
-        errorMessage = '⚠️ **Rate limit reached**\n\nI\'m receiving too many requests. Please wait a minute and try again.\n\n**Tip**: Use the floating chat widget (bottom-right corner) for quick questions!';
-      } else if (error.message?.includes('API key')) {
-        errorMessage = '⚠️ **API Configuration Issue**\n\nPlease check your Gemini API key in the .env file.';
-      }
-
+      const busy = [429, 503].includes(error?.status) || /429|503|exhausted|overloaded/i.test(error?.message || '');
       setMessages([
-        ...newMessages,
+        ...next,
         {
           role: 'assistant',
-          content: errorMessage
-        }
+          error: true,
+          content: busy
+            ? '**The assistant is busy right now.** Please try again in a minute.'
+            : '**Sorry, something went wrong.** Please check your connection and try again.',
+        },
       ]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
+  const retryLast = () => {
+    const lastQuestion = [...messages].reverse().find((m) => m.role === 'user');
+    if (!lastQuestion) return;
+    setMessages((m) => m.slice(0, -2));
+    send(lastQuestion.content);
+  };
+
+  const toggleListening = () => {
+    if (!SpeechRecognition) return;
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-ZA';
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      setInput(Array.from(event.results).map((r) => r[0].transcript).join(''));
+    };
+    recognition.onend = () => setListening(false);
+    recognition.onerror = () => setListening(false);
+    recognitionRef.current = recognition;
+    setListening(true);
+    recognition.start();
+  };
+
+  const onKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      send();
     }
   };
 
-  const handleSuggestedQuestion = (question) => {
-    setInput(question);
-  };
+  const iconButton = 'p-1.5 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-colors';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <div className="bg-gray-100 p-3 rounded-full mr-4">
-                <Sparkles className="h-8 w-8 text-gray-700" />
+    <div className="min-h-screen bg-gray-50">
+      <PageHero
+        image="ai-assistant"
+        title="AI Travel Assistant"
+        subtitle="Ask anything about Cape Town. Answers are powered by Google Gemini."
+      >
+        <div className="flex flex-wrap gap-2">
+          {['Free to use', 'Remembers your chat', canSpeak && 'Voice replies'].filter(Boolean).map((badge) => (
+            <span key={badge} className="px-3 py-1 rounded-full bg-white/15 border border-white/25 text-sm backdrop-blur-sm">
+              {badge}
+            </span>
+          ))}
+        </div>
+      </PageHero>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 grid gap-6 lg:grid-cols-3">
+        {/* Chat card */}
+        <section className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[min(720px,calc(100svh-7rem))] min-h-[480px]">
+          <header className="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-100">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative shrink-0">
+                <div className="h-10 w-10 rounded-full bg-gray-900 text-white flex items-center justify-center">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">AI Travel Assistant</h1>
-                <p className="text-gray-600">Powered by Google Gemini AI</p>
+              <div className="min-w-0">
+                <h2 className="font-semibold text-gray-900 truncate">Cape Town Guide</h2>
+                <p className="text-xs text-gray-500">{isLoading ? 'Typing…' : 'Online'}</p>
               </div>
             </div>
-            {messages.length > 1 && (
-              <button
-                onClick={handleClearChat}
-                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
-                title="Clear conversation"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Clear Chat</span>
-              </button>
+            {hasConversation && (
+              <div className="flex items-center gap-1 shrink-0">
+                <button type="button" onClick={copyChat} className={`${iconButton} flex items-center gap-1.5 text-sm`} title="Copy chat">
+                  {copied === 'chat' ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                  <span className="hidden sm:inline">{copied === 'chat' ? 'Copied' : 'Copy'}</span>
+                </button>
+                <button type="button" onClick={newChat} className={`${iconButton} flex items-center gap-1.5 text-sm`} title="Start a new chat">
+                  <RotateCcw className="h-4 w-4" />
+                  <span className="hidden sm:inline">New chat</span>
+                </button>
+              </div>
             )}
-          </div>
-        </div>
-      </div>
+          </header>
 
-      {/* Chat Container */}
-      <div className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Messages */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm mb-4" style={{ height: 'calc(100vh - 400px)', minHeight: '400px' }}>
-          <div className="h-full overflow-y-auto p-6 space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-900 border border-gray-200'
-                  }`}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <Sparkles className="h-4 w-4 mr-2 text-gray-600" />
-                        <span className="text-xs font-semibold text-gray-600">AI Assistant</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {!isSpeaking && (
-                          <button
-                            onClick={() => handlePlaySpeech(message.content)}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            title="Play audio"
-                          >
-                            <Volume2 className="h-4 w-4 text-gray-600" />
-                          </button>
-                        )}
-                        {isSpeaking && !isPaused && (
-                          <button
-                            onClick={handlePauseSpeech}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            title="Pause audio"
-                          >
-                            <Pause className="h-4 w-4 text-gray-600" />
-                          </button>
-                        )}
-                        {isSpeaking && isPaused && (
-                          <button
-                            onClick={handleResumeSpeech}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            title="Resume audio"
-                          >
-                            <Volume2 className="h-4 w-4 text-gray-600" />
-                          </button>
-                        )}
-                        {isSpeaking && (
-                          <button
-                            onClick={handleStopSpeaking}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            title="Stop audio"
-                          >
-                            <Square className="h-4 w-4 text-gray-600" />
-                          </button>
-                        )}
-                      </div>
+          {/* Messages */}
+          <div ref={listRef} className="flex-1 overflow-y-auto px-3 sm:px-5 py-5 space-y-5" aria-live="polite">
+            {messages.map((message, index) => {
+              const isUser = message.role === 'user';
+              const isSpeakingThis = speaking.index === index;
+              return (
+                <div key={index} className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                  {!isUser && (
+                    <div className="hidden sm:flex h-8 w-8 shrink-0 rounded-full bg-gray-100 border border-gray-200 items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-gray-700" />
                     </div>
                   )}
-                  <div
-                    className="whitespace-pre-line leading-relaxed text-base"
-                    dangerouslySetInnerHTML={{
-                      __html: message.content
-                        .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
-                        .replace(/\n/g, '<br/>')
-                        .replace(/•/g, '<span class="inline-block w-4 text-gray-700">•</span>')
-                    }}
-                  />
+                  <div className={`max-w-[88%] sm:max-w-[80%] ${isUser ? 'items-end' : 'items-start'} flex flex-col`}>
+                    <div
+                      className={`rounded-2xl px-4 py-3 text-[15px] leading-relaxed break-words ${
+                        isUser
+                          ? 'bg-gray-900 text-white rounded-br-md whitespace-pre-wrap'
+                          : message.error
+                            ? 'bg-red-50 text-red-800 border border-red-100 rounded-bl-md'
+                            : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                      }`}
+                    >
+                      {isUser ? message.content : <div dangerouslySetInnerHTML={{ __html: formatReply(message.content) }} />}
+                    </div>
+
+                    {!isUser && index > 0 && (
+                      <div className="mt-1 flex items-center gap-0.5">
+                        {message.error ? (
+                          <button type="button" onClick={retryLast} className={`${iconButton} flex items-center gap-1 text-xs`}>
+                            <RotateCcw className="h-3.5 w-3.5" /> Try again
+                          </button>
+                        ) : (
+                          <>
+                            {canSpeak && !isSpeakingThis && (
+                              <button type="button" onClick={() => speak(message.content, index)} className={iconButton} title="Listen">
+                                <Volume2 className="h-4 w-4" />
+                              </button>
+                            )}
+                            {isSpeakingThis && (
+                              <>
+                                <button type="button" onClick={togglePause} className={iconButton} title={speaking.paused ? 'Resume' : 'Pause'}>
+                                  {speaking.paused ? <Volume2 className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                                </button>
+                                <button type="button" onClick={stopSpeaking} className={iconButton} title="Stop">
+                                  <Square className="h-4 w-4" />
+                                </button>
+                                <span className="text-xs text-amber-600 ml-1">{speaking.paused ? 'Paused' : 'Speaking…'}</span>
+                              </>
+                            )}
+                            <button type="button" onClick={() => copyText(plainText(message.content), index)} className={iconButton} title="Copy">
+                              {copied === index ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg px-4 py-3 bg-gray-100 border border-gray-200">
-                  <div className="flex items-center">
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin text-gray-600" />
-                    <span className="text-gray-600">Thinking...</span>
-                  </div>
+              <div className="flex gap-2.5">
+                <div className="hidden sm:flex h-8 w-8 shrink-0 rounded-full bg-gray-100 border border-gray-200 items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-gray-700" />
+                </div>
+                <div className="rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3.5 flex items-center gap-1.5" aria-label="Assistant is typing">
+                  {[0, 150, 300].map((delay) => (
+                    <span key={delay} className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: `${delay}ms` }} />
+                  ))}
                 </div>
               </div>
             )}
 
-            <div ref={messagesEndRef} />
+            {/* Welcome suggestions */}
+            {!hasConversation && !isLoading && (
+              <div className="pt-2">
+                <p className="text-sm font-medium text-gray-500 mb-3">Try one of these</p>
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5">
+                  {SUGGESTIONS.map(({ Icon, label, question }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => send(question)}
+                      className="group flex items-start gap-3 text-left p-3.5 rounded-xl border border-gray-200 hover:border-gray-900 hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="h-9 w-9 shrink-0 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-gray-900 group-hover:text-white transition-colors">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-gray-900">{label}</span>
+                        <span className="block text-xs text-gray-500 mt-0.5 line-clamp-2">{question}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Suggested Questions */}
-        {messages.length === 1 && (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-4">
-            <div className="flex items-center mb-4">
-              <Lightbulb className="h-5 w-5 mr-2 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Suggested Questions</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {suggestedQuestions.map((question, index) => (
+          {/* Input */}
+          <div className="border-t border-gray-100 p-3 sm:p-4">
+            <div className="flex items-end gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-2 focus-within:border-gray-900 focus-within:ring-1 focus-within:ring-gray-900 transition-colors">
+              <label htmlFor="ai-input" className="sr-only">Your question</label>
+              <textarea
+                id="ai-input"
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                placeholder={listening ? 'Listening… speak now' : 'Ask me anything about Cape Town…'}
+                rows={1}
+                maxLength={1000}
+                className="flex-1 resize-none bg-transparent px-2 py-2 text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                disabled={isLoading}
+              />
+              {SpeechRecognition && (
                 <button
-                  key={index}
-                  onClick={() => handleSuggestedQuestion(question)}
-                  className="text-left px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-colors text-sm text-gray-700"
+                  type="button"
+                  onClick={toggleListening}
+                  className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center transition-colors ${
+                    listening ? 'bg-red-500 text-white animate-pulse' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                  title={listening ? 'Stop listening' : 'Speak your question'}
+                  aria-pressed={listening}
                 >
-                  {question}
+                  {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => send()}
+                disabled={!input.trim() || isLoading}
+                className="h-10 w-10 shrink-0 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                aria-label="Send"
+              >
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-[18px] w-[18px]" />}
+              </button>
+            </div>
+            <p className="mt-2 px-1 text-xs text-gray-400 hidden sm:block">Enter to send · Shift+Enter for a new line</p>
+          </div>
+        </section>
+
+        {/* Sidebar (below the chat on phones) */}
+        <aside className="space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+            <h2 className="font-semibold text-gray-900 mb-3">Popular topics</h2>
+            <div className="flex flex-wrap gap-2">
+              {TOPICS.map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  onClick={() => send(`Tell me about ${topic}: what to know before visiting.`)}
+                  disabled={isLoading}
+                  className="px-3 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:border-gray-900 hover:text-gray-900 disabled:opacity-50 transition-colors"
+                >
+                  {topic}
                 </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Input Area */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-          <div className="flex gap-3">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about Cape Town..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
-              rows="2"
-              disabled={isLoading}
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <Send className="h-5 w-5 md:mr-2" />
-                  <span className="hidden md:inline">Send</span>
-                </>
-              )}
-            </button>
-          </div>
-          <p className="mt-2 text-xs text-gray-500">
-            Press Enter to send, Shift+Enter for new line
-          </p>
-        </div>
-
-        {/* Info Box */}
-        <div className="mt-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 p-4">
-          <div className="flex items-start">
-            <MessageCircle className="h-5 w-5 mr-2 text-gray-700 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-gray-700">
-              <p className="font-semibold mb-2">💡 Quick Tips:</p>
-              <ul className="space-y-1.5">
-                <li>• Ask <strong>short, specific questions</strong> for best results</li>
-                <li>• Responses are optimized to be <strong>brief and scannable</strong></li>
-                <li>• Use the <strong>voice button</strong> to listen to responses</li>
-                <li>• Try the suggested questions above to get started</li>
-              </ul>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+            <h2 className="font-semibold text-gray-900 mb-3">Plan faster</h2>
+            <div className="space-y-2">
+              {[
+                { to: '/planner', Icon: CalendarRange, title: 'Itinerary Planner', text: 'Build a day-by-day plan' },
+                { to: '/events', Icon: CalendarDays, title: 'Events & Festivals', text: "See what's on" },
+                { to: '/transportation', Icon: Bus, title: 'Getting Around', text: 'Buses, trains and taxis' },
+                { to: '/safety', Icon: ShieldCheck, title: 'Safety Tips', text: 'Travel with confidence' },
+              ].map(({ to, Icon, title, text }) => (
+                <Link key={to} to={to} className="group flex items-center gap-3 p-2.5 -mx-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                  <span className="h-9 w-9 shrink-0 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-semibold text-gray-900">{title}</span>
+                    <span className="block text-xs text-gray-500">{text}</span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
+
+          <div className="rounded-2xl bg-gray-900 text-white p-5">
+            <h2 className="font-semibold mb-3 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-amber-400" /> Tips
+            </h2>
+            <ul className="space-y-2 text-sm text-gray-300">
+              {TIPS.map((tip) => (
+                <li key={tip} className="flex gap-2">
+                  <span className="text-amber-400">•</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-xs text-gray-400">AI answers can be wrong. Check opening times and prices before you go.</p>
+          </div>
+        </aside>
       </div>
     </div>
   );

@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Calendar, Plus, Trash2, Clock, DollarSign, Download, Save, Calculator, PieChart, Check } from 'lucide-react';
 import { FEATURED_ATTRACTIONS } from '../utils/constants';
 import { exportItineraryToPDF } from '../services/pdfExport';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../services/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import PageHero from '../components/common/PageHero';
+import { toast } from '../components/common/Toaster';
 
 const ItineraryPlanner = () => {
   const { user } = useAuth();
@@ -30,6 +32,40 @@ const ItineraryPlanner = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [itineraryName, setItineraryName] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  // A saved itinerary opened from My Itineraries (?id=...)
+  const [searchParams] = useSearchParams();
+  const savedId = searchParams.get('id');
+  const [loadedId, setLoadedId] = useState(null);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
+
+  useEffect(() => {
+    if (!savedId || !user) return;
+    let cancelled = false;
+    const load = async () => {
+      setIsLoadingSaved(true);
+      try {
+        const snap = await getDoc(doc(db, 'itineraries', savedId));
+        if (cancelled) return;
+        if (!snap.exists()) {
+          toast('That itinerary could not be found.', 'error');
+          return;
+        }
+        const data = snap.data();
+        setDays(data.days?.length ? data.days : [{ id: 1, date: '', activities: [] }]);
+        if (data.budget) setBudget(data.budget);
+        if (data.currency) setCurrency(data.currency);
+        setItineraryName(data.name || '');
+        setSelectedDay(0);
+        setLoadedId(savedId);
+      } catch {
+        if (!cancelled) toast('Could not open this itinerary. Please try again.', 'error');
+      } finally {
+        if (!cancelled) setIsLoadingSaved(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [savedId, user]);
 
   const addDay = () => {
     const newDay = {
@@ -147,7 +183,7 @@ const ItineraryPlanner = () => {
     // Check if there are activities to save
     const totalActivities = days.reduce((sum, day) => sum + day.activities.length, 0);
     if (totalActivities === 0) {
-      alert('Please add at least one activity to your itinerary before saving.');
+      toast('Please add at least one activity to your itinerary before saving.');
       return;
     }
 
@@ -156,7 +192,7 @@ const ItineraryPlanner = () => {
 
   const saveItinerary = async () => {
     if (!itineraryName.trim()) {
-      alert('Please enter a name for your itinerary');
+      toast('Please enter a name for your itinerary');
       return;
     }
 
@@ -174,25 +210,29 @@ const ItineraryPlanner = () => {
         totalCost: getTotalCost(),
         userId: user.uid,
         userEmail: user.email,
-        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
 
-      await addDoc(collection(db, 'itineraries'), itineraryData);
+      if (loadedId) {
+        // Editing a saved itinerary: update it instead of making a copy
+        await updateDoc(doc(db, 'itineraries', loadedId), itineraryData);
+      } else {
+        const ref = await addDoc(collection(db, 'itineraries'), { ...itineraryData, createdAt: serverTimestamp() });
+        setLoadedId(ref.id);
+      }
+      toast(loadedId ? 'Itinerary updated.' : 'Itinerary saved to My Itineraries.', 'success');
 
       setSaveSuccess(true);
-      console.log('✅ Itinerary saved successfully!');
 
       // Show success message for 2 seconds then close modal
       setTimeout(() => {
         setShowSaveModal(false);
         setSaveSuccess(false);
-        setItineraryName('');
-      }, 2000);
+      }, 1500);
 
     } catch (error) {
       console.error('❌ Error saving itinerary:', error);
-      alert('Failed to save itinerary. Please try again.');
+      toast('Failed to save itinerary. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -200,15 +240,30 @@ const ItineraryPlanner = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Itinerary Planner</h1>
-          <p className="text-xl text-gray-600">
-            Plan your perfect Cape Town trip day by day
-          </p>
+      <PageHero
+        image="planner"
+        title="Itinerary Planner"
+        subtitle="Plan your perfect Cape Town trip day by day"
+      />
+
+      {savedId && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-2 text-sm text-amber-900">
+            <span>
+              {!user
+                ? 'Log in to open your saved itinerary.'
+                : isLoadingSaved
+                  ? 'Opening your saved itinerary…'
+                  : loadedId
+                    ? <>Editing <strong>{itineraryName || 'your itinerary'}</strong>. Saving updates it.</>
+                    : 'This itinerary could not be opened.'}
+            </span>
+            <Link to={user ? '/my-itineraries' : '/login'} state={user ? undefined : { from: `/planner?id=${savedId}` }} className="font-semibold underline">
+              {user ? 'Back to My Itineraries' : 'Log in'}
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

@@ -46,12 +46,17 @@ const FloatingChatWidget = () => {
     if (!messageText.trim() || isLoading) return;
 
     const userMessage = { role: 'user', content: messageText };
+    // Send the last few turns so follow-up questions make sense
+    const history = messages
+      .slice(1)
+      .slice(-8)
+      .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content.replace(/\*\*/g, '')}`);
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await generateChatResponse(messageText);
+      const response = await generateChatResponse(messageText, history);
       const assistantMessage = { role: 'assistant', content: response };
       setMessages(prev => [...prev, assistantMessage]);
     } catch {
