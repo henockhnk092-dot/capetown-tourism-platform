@@ -26,3 +26,6 @@ dist-ssr
 
 # Old Stripe Firebase Functions (no longer used, kept locally)
 _old-stripe-firebase-functions/
+
+# Wrangler build cache
+.wrangler/
