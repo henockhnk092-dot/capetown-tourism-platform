@@ -55,7 +55,7 @@
         window.__loadDrive = function () {
           if (window.__driveLoaded) return;
           if (/^\/(login|signup|profile|favorites|my-bookings|my-itineraries)(\/|$)/.test(location.pathname)) return;
-          if (!/(^|\.)hnkiot\.com$/.test(location.hostname)) return;
+          if (!/(^|\.)(hnkiot|capetownplanner)\.com$/.test(location.hostname)) return;
           window.__driveLoaded = true;
           var script = document.createElement("script");
           script.async = 1;
