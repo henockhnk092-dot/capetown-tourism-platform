@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Globe } from 'lucide-react';
 import { BUSINESS, NAV_ITEMS } from '../../utils/constants';
 import SocialLinks from '../common/SocialLinks';
+import { reopenConsent } from '../../utils/consent';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -101,7 +102,8 @@ const Footer = () => {
         </div>
 
         <p className="mt-8 text-xs text-gray-500">
-          Some links on this site are affiliate links. If you book through them we may earn a commission, at no extra cost to you.
+          Some links on this site are affiliate links. If you book through them we may earn a commission, at no extra cost to you.{' '}
+          <button type="button" onClick={reopenConsent} className="underline hover:text-gray-300">Cookie choices</button>
         </p>
 
         {/* Bottom Bar */}

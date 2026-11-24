@@ -5,6 +5,7 @@ import Footer from './Footer';
 import FloatingChatWidget from '../chat/FloatingChatWidget';
 import useSEO from '../../hooks/useSEO';
 import Toaster from '../common/Toaster';
+import ConsentBanner from '../common/ConsentBanner';
 
 const PRIVATE_PAGE = /^\/(login|signup|profile|favorites|my-bookings|my-itineraries)(\/|$)/;
 
@@ -27,6 +28,7 @@ const Layout = () => {
       </main>
       <Footer />
       <Toaster />
+      <ConsentBanner />
       {/* The AI Assistant page already is the chat */}
       {pathname !== '/ai-assistant' && <FloatingChatWidget />}
     </div>

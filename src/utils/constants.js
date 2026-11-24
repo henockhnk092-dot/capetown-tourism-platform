@@ -229,6 +229,7 @@ export const NAV_ITEMS = [
   { name: 'Home', path: '/', icon: '🏠' },
   { name: 'Attractions', path: '/attractions', icon: '🗺️' },
   { name: 'Accommodation', path: '/accommodation', icon: '🏨' },
+  { name: 'Flights', path: '/flights', icon: '✈️' },
   { name: 'AI Assistant', path: '/ai-assistant', icon: '🤖' },
   { name: 'Itinerary Planner', path: '/planner', icon: '📝' },
   { name: 'Blog', path: '/blog', icon: '📰' },
@@ -250,7 +251,7 @@ export const NAV_GROUPS = [
   },
   {
     name: 'Plan',
-    items: ['/ai-assistant', '/planner', '/transportation'].map(navItem),
+    items: ['/flights', '/ai-assistant', '/planner', '/transportation'].map(navItem),
   },
   {
     name: 'Travel Info',

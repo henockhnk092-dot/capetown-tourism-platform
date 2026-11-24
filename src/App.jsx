@@ -23,6 +23,7 @@ const MyBookings = lazy(() => import('./pages/MyBookings'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Favorites = lazy(() => import('./pages/Favorites'));
+const Flights = lazy(() => import('./pages/Flights'));
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="attractions" element={<Attractions />} />
+          <Route path="flights" element={<Flights />} />
           <Route path="accommodation" element={<Accommodation />} />
           <Route path="ai-assistant" element={<AIAssistant />} />
           <Route path="planner" element={<ItineraryPlanner />} />
@@ -90,9 +92,10 @@ function App() {
                   <h2 className="text-2xl font-semibold mt-6 mb-4">Affiliate Partners</h2>
                   <p className="mb-4">
                     Some links lead to travel partners, and we may earn a commission if you book, at no extra cost to you.
-                    We use Travelpayouts to add and measure these links. Its script runs on our public pages, where it can
+                    Partner tools load only with your permission, and you can change your choice from the footer. If you accept,
+                    the Travelpayouts script runs on our public pages, where it can
                     see page content and link clicks and may use cookies or similar technologies. We do not load it on
-                    sign-in and account pages. Partners handle your booking and payment under their own privacy policies.
+                    sign-in and account pages. The hotel map is provided by Stay22. Partners handle your booking and payment under their own privacy policies.
                   </p>
                   <h2 className="text-2xl font-semibold mt-6 mb-4">Your Rights</h2>
                   <p className="mb-4">

@@ -22,6 +22,11 @@ export const PAGE_SEO = {
     description:
       'Compare Cape Town hotels, guesthouses and backpackers by area, price and rating, then send a reservation request.',
   },
+  '/flights': {
+    title: 'Flights to Cape Town',
+    description:
+      'Compare recent fares to Cape Town from Johannesburg, Durban, London, Dubai and more, then search live flights for your dates.',
+  },
   '/ai-assistant': {
     title: 'AI Travel Assistant for Cape Town',
     description:

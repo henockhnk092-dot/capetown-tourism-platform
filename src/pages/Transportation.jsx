@@ -1,5 +1,7 @@
 import { Bus, Car, Plane, Train, DollarSign, Clock, MapPin } from 'lucide-react';
 import PageHero from '../components/common/PageHero';
+import PartnerCard from '../components/common/PartnerCard';
+import { CAR_HIRE_URL } from '../utils/partners';
 
 const Transportation = () => {
   const transportOptions = [
@@ -132,6 +134,18 @@ const Transportation = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Car hire partner */}
+        <div className="mt-8">
+          <PartnerCard
+            icon={Car}
+            title="Compare car hire in Cape Town"
+            text="See current prices from car hire companies. Search for Cape Town or the airport (CPT) and check the insurance, deposit and fuel rules before you book."
+            href={CAR_HIRE_URL}
+            button="Compare cars"
+            partner="DiscoverCars"
+          />
         </div>
 
         {/* Travel Tips */}

@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Search, Filter, MapPin, Star, Clock, DollarSign, X, Map as MapIcon, List } from 'lucide-react';
+import { Search, Ticket, Filter, MapPin, Star, Clock, DollarSign, X, Map as MapIcon, List } from 'lucide-react';
 import { FEATURED_ATTRACTIONS, ATTRACTION_CATEGORIES, PRICE_RANGES } from '../utils/constants';
 import { useFavorites } from '../context/FavoritesContext';
 import { Heart } from 'lucide-react';
 import LeafletMap from '../components/map/LeafletMap';
 import PageHero from '../components/common/PageHero';
+import PartnerCard from '../components/common/PartnerCard';
+import { TOURS_URL } from '../utils/partners';
 
 const Attractions = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,6 +53,17 @@ const Attractions = () => {
         title="Explore Cape Town Attractions"
         subtitle={`Discover ${FEATURED_ATTRACTIONS.length} must-see places to visit in Cape Town`}
       />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <PartnerCard
+          icon={Ticket}
+          title="Book Cape Town tours and tickets"
+          text="Cape Point and the penguins, the Winelands, Robben Island and more, with traveller reviews."
+          href={TOURS_URL}
+          button="See tours"
+          partner="Viator"
+        />
+      </div>
 
       {/* Search and Filter Bar */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">

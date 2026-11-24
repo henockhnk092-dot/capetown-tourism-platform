@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Hotel, UtensilsCrossed, MapPin, Star, DollarSign, Search, Filter, Calendar, Users, Sparkles, Heart, X, Grid, List, ChevronDown, Phone, Mail, Clock, Check, Share2, Eye, ChevronLeft, ChevronRight, Copy, CheckCircle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageHero from '../components/common/PageHero';
+import StayMap from '../components/common/StayMap';
 import { generateChatResponse } from '../services/geminiAI';
 import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
@@ -795,6 +796,8 @@ const Accommodation = () => {
       />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <StayMap />
+
         {/* Tabs - Responsive */}
         <div className="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto">
           <button
