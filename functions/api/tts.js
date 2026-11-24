@@ -4,7 +4,7 @@
 const REGION = 'southafricanorth';
 const VOICES = ['en-ZA-LeahNeural', 'en-ZA-LukeNeural'];
 const MAX_CHARS = 1200;
-const ALLOWED_ORIGINS = ['https://capetown.hnkiot.com', 'https://capetown-tourism.pages.dev'];
+const ALLOWED_ORIGINS = ['https://capetownplanner.com', 'https://capetown.hnkiot.com', 'https://capetown-tourism.pages.dev'];
 
 const escapeXml = (text) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');

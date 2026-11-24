@@ -2,7 +2,7 @@
 // and the post-build script that writes per-route HTML for link previews.
 // Plain data only: this file is also imported by Node at build time.
 
-export const SITE_URL = 'https://capetown.hnkiot.com';
+export const SITE_URL = 'https://capetownplanner.com';
 export const SITE_NAME = 'Cape Town Tourism Platform';
 export const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 

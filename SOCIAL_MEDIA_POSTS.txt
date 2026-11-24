@@ -10,7 +10,7 @@ Before posting, prepare the following screenshots/images:
 
 1. HOMEPAGE SCREENSHOT (Hero Carousel)
    - Full-width screenshot showing the hero carousel with Cape Town nature background
-   - Best taken at: https://capetown.hnkiot.com/
+   - Best taken at: https://capetownplanner.com/
    - Resolution: 1920x1080 or higher
 
 2. FEATURES COLLAGE (4-in-1 Grid)
@@ -68,7 +68,7 @@ LINKEDIN ARTICLE
 
 I'm excited to share my latest project: an AI-powered Cape Town Tourism Platform built entirely in a single 8-hour development session!
 
-🚀 Live Site: https://capetown.hnkiot.com/
+🚀 Live Site: https://capetownplanner.com/
 📂 GitHub: https://github.com/henockhnk092-dot/capetown-tourism-platform
 
 [📸 INSERT FIGURE 1: Hero screenshot of the live website homepage showing the hero carousel with Cape Town nature background]
@@ -172,7 +172,7 @@ TWEET 1 (Main):
 • 50+ attractions
 • PDF itinerary export
 
-🌍 Live: https://capetown.hnkiot.com/
+🌍 Live: https://capetownplanner.com/
 💻 Code: https://github.com/henockhnk092-dot/capetown-tourism-platform
 
 [📸 INSERT FIGURE 5: Attach homepage screenshot or demo GIF showing the hero carousel]
@@ -290,7 +290,7 @@ Hey everyone! 👋 I'm super excited to share my latest project - a comprehensiv
 • Leaflet Maps 🗺️
 • Deployed on Netlify 🚀
 
-🔗 Try it live: capetown.hnkiot.com
+🔗 Try it live: capetownplanner.com
 (Link in bio! 👆)
 
 💡 What I Learned:
@@ -355,7 +355,7 @@ Text: "React • Firebase • AI • Vite ⚡"
 
 Story 8: Live site link sticker
 Text: "Try it yourself! 🌍"
-Link: https://capetown.hnkiot.com/
+Link: https://capetownplanner.com/
 
 Story 9: Call to action
 Text: "Follow for more projects! 🚀"
@@ -427,7 +427,7 @@ END OF SOCIAL MEDIA CONTENT
 ================================================================================
 
 QUICK LINKS FOR COPY-PASTE:
-• Live Site: https://capetown.hnkiot.com/
+• Live Site: https://capetownplanner.com/
 • GitHub: https://github.com/henockhnk092-dot/capetown-tourism-platform
 • Email: henock@hnkiot.com
 • YouTube: https://www.youtube.com/playlist?list=PLrZbkNpNVSwzyXZ9pyZ0JZCcaW3tMawup

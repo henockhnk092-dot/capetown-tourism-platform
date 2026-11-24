@@ -7,4 +7,4 @@ Disallow: /favorites
 Disallow: /my-bookings
 Disallow: /my-itineraries
 
-Sitemap: https://capetown.hnkiot.com/sitemap.xml
+Sitemap: https://capetownplanner.com/sitemap.xml

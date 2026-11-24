@@ -135,7 +135,7 @@ const downloadCalendarFile = (event) => {
     'VERSION:2.0',
     'PRODID:-//HNK IoT Solutions//Cape Town Tourism Platform//EN',
     'BEGIN:VEVENT',
-    `UID:event-${event.id}-${event.startDate}@capetown.hnkiot.com`,
+    `UID:event-${event.id}-${event.startDate}@capetownplanner.com`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
     `DTSTART;VALUE=DATE:${toIcsDate(event.startDate)}`,
     `DTEND;VALUE=DATE:${end.toISOString().slice(0, 10).replace(/-/g, '')}`,

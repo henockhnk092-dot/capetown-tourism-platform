@@ -4,7 +4,7 @@
 
 ## 🌐 Live Demo
 
-**🚀 Visit the live site:** [https://capetown.hnkiot.com/](https://capetown.hnkiot.com/)
+**🚀 Visit the live site:** [https://capetownplanner.com/](https://capetownplanner.com/)
 
 ---
 
@@ -991,7 +991,7 @@ npm run lint
 
 ### ☁️ Deploy to Cloudflare Pages (Current)
 
-> **Live Site:** [https://capetown.hnkiot.com/](https://capetown.hnkiot.com/) (Cloudflare Pages project `capetown-tourism`)
+> **Live Site:** [https://capetownplanner.com/](https://capetownplanner.com/) (Cloudflare Pages project `capetown-tourism`)
 
 1. **Log in to Cloudflare once:**
    ```bash
@@ -1005,7 +1005,7 @@ npm run lint
    This runs `vite build` and uploads `dist/` to the `capetown-tourism` Pages project.
    Environment variables are read from your local `.env` at build time, so there is nothing to set in the Cloudflare dashboard.
 
-3. **Custom domain:** `capetown.hnkiot.com` is attached to the Pages project and needs a proxied
+3. **Custom domain:** `capetownplanner.com` is attached to the Pages project and needs a proxied
    `CNAME capetown → capetown-tourism.pages.dev` record in the `hnkiot.com` DNS zone.
 
 `public/_headers` sets security headers and long-term caching for hashed assets. Cloudflare Pages serves
@@ -1200,7 +1200,7 @@ This project is licensed under the **MIT License**.
 - ✅ **Rapid Development** - Full-stack app in 8 hours
 - ✅ **Modern Tech Stack** - Latest React, Vite, Tailwind
 - ✅ **AI Integration** - Google Gemini for smart recommendations
-- ✅ **Production Ready** - Deployed on Cloudflare Pages at capetown.hnkiot.com
+- ✅ **Production Ready** - Deployed on Cloudflare Pages at capetownplanner.com
 - ✅ **Secure** - Firestore security rules and auth
 - ✅ **Responsive** - Works flawlessly on all devices
 - ✅ **Well Documented** - Comprehensive guides and comments
@@ -1228,7 +1228,7 @@ This project is licensed under the **MIT License**.
 
 ## 🌍 Built with ❤️ for Cape Town Tourism
 
-**Live Site:** [capetown.hnkiot.com](https://capetown.hnkiot.com/)
+**Live Site:** [capetownplanner.com](https://capetownplanner.com/)
 **Repository:** [github.com/henockhnk092-dot/capetown-tourism-platform](https://github.com/henockhnk092-dot/capetown-tourism-platform)
 
 ### ⭐ Star this repo if you found it helpful!

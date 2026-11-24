@@ -3,7 +3,7 @@
 // The key is the encrypted Pages secret GEMINI_API_KEY.
 
 const GEMINI_ORIGIN = 'https://generativelanguage.googleapis.com';
-const ALLOWED_ORIGINS = ['https://capetown.hnkiot.com', 'https://capetown-tourism.pages.dev'];
+const ALLOWED_ORIGINS = ['https://capetownplanner.com', 'https://capetown.hnkiot.com', 'https://capetown-tourism.pages.dev'];
 // Only model calls the site actually makes
 const ALLOWED_PATH = /^v1beta\/models\/[a-z0-9.-]+:(generateContent|streamGenerateContent)$/;
 
