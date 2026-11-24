@@ -87,6 +87,13 @@ function App() {
                     <li>Respond to your inquiries</li>
                     <li>Send newsletters and updates (with your consent)</li>
                   </ul>
+                  <h2 className="text-2xl font-semibold mt-6 mb-4">Affiliate Partners</h2>
+                  <p className="mb-4">
+                    Some links lead to travel partners, and we may earn a commission if you book, at no extra cost to you.
+                    We use Travelpayouts to add and measure these links. Its script runs on our public pages, where it can
+                    see page content and link clicks and may use cookies or similar technologies. We do not load it on
+                    sign-in and account pages. Partners handle your booking and payment under their own privacy policies.
+                  </p>
                   <h2 className="text-2xl font-semibold mt-6 mb-4">Your Rights</h2>
                   <p className="mb-4">
                     You have the right to:

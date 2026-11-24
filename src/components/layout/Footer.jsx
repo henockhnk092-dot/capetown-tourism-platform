@@ -100,6 +100,10 @@ const Footer = () => {
           </div>
         </div>
 
+        <p className="mt-8 text-xs text-gray-500">
+          Some links on this site are affiliate links. If you book through them we may earn a commission, at no extra cost to you.
+        </p>
+
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">

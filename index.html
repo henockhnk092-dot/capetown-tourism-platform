@@ -44,6 +44,22 @@
     <meta name="twitter:image" content="https://capetown.hnkiot.com/og-image.jpg" />
     <meta name="twitter:image:alt" content="Explore Cape Town: the V&amp;A Waterfront clock tower with the Cape Town Tourism Platform title" />
 
+    <!-- Travelpayouts Drive (affiliate links). Public pages only: it is a third-party
+         script, so it never loads on sign-in or account pages. Layout.jsx reloads the
+         page when a visitor moves from a public page to one of these. -->
+    <script nowprocket data-noptimize="1" data-cfasync="false" data-wpfc-render="false" seraph-accel-crit="1" data-no-defer="1" data-cmp-ab="2">
+      (function () {
+        if (/^\/(login|signup|profile|favorites|my-bookings|my-itineraries)(\/|$)/.test(location.pathname)) return;
+        if (!/(^|\.)hnkiot\.com$/.test(location.hostname)) return;
+        window.__driveLoaded = true;
+        var script = document.createElement("script");
+        script.async = 1;
+        script.setAttribute("data-cmp-ab","2");
+        script.src = 'https://emrldtp.com/NjA2MTk5.js?t=606199';
+        document.head.appendChild(script);
+      })();
+    </script>
+
     <!-- Structured data for search engines -->
     <script type="application/ld+json">
       {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://capetown.hnkiot.com/#website","name":"Cape Town Tourism Platform","url":"https://capetown.hnkiot.com/","inLanguage":"en-ZA","image":"https://capetown.hnkiot.com/og-image.jpg","description":"Attractions, places to stay, events, safety tips, transport and an AI travel assistant for Cape Town.","publisher":{"@id":"https://hnkiot.com/#organization"},"about":{"@type":"City","name":"Cape Town","containedInPlace":{"@type":"Country","name":"South Africa"}}},{"@type":"Organization","@id":"https://hnkiot.com/#organization","name":"HNK IoT Solutions (Pty) Ltd","alternateName":"HNK IoT Solutions","url":"https://hnkiot.com","logo":"https://capetown.hnkiot.com/android-chrome-512x512.png","email":"henock@hnkiot.com","telephone":"+27614719400","founder":{"@type":"Person","name":"Henock Mukonkole"},"address":{"@type":"PostalAddress","addressLocality":"Cape Town","addressRegion":"Western Cape","addressCountry":"ZA"},"contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"henock@hnkiot.com","telephone":"+27614719400","availableLanguage":["English"]},"sameAs":["https://www.linkedin.com/in/hnk-iot-solutions/","https://github.com/hnkiot","https://www.youtube.com/@HNKIoTSolutions","https://www.facebook.com/HnkIoTSolutions","https://www.instagram.com/hnkiotsolutions/","https://x.com/HnkIotSolutions","https://www.tiktok.com/@hnkiot"]},{"@type":"WebApplication","name":"Cape Town Tourism Platform","url":"https://capetown.hnkiot.com/","applicationCategory":"TravelApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"ZAR"},"provider":{"@id":"https://hnkiot.com/#organization"}}]}
