@@ -6,6 +6,7 @@ import { Heart } from 'lucide-react';
 import LeafletMap from '../components/map/LeafletMap';
 import PageHero from '../components/common/PageHero';
 import PartnerCard from '../components/common/PartnerCard';
+import ToursSection from '../components/common/ToursSection';
 import { TOURS_URL } from '../utils/partners';
 
 const Attractions = () => {
@@ -299,6 +300,8 @@ const Attractions = () => {
           </div>
         )}
       </div>
+
+      <ToursSection />
 
       {/* Details Modal */}
       {showDetailsModal && selectedAttraction && (
