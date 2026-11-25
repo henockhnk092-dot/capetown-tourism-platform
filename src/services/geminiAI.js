@@ -76,9 +76,16 @@ const LONG_CONFIG = { temperature: 0.6, topK: 40, topP: 0.95, maxOutputTokens: 8
 const PLANNER_CONTEXT = `You are a friendly, knowledgeable Cape Town tourism expert.
 Use **bold** for place names, clear headings and bullet points. Give real place names, realistic ZAR prices and practical tips.`;
 
+// A model that is out of quota (429) or overloaded (503) is skipped for a while,
+// so later messages don't wait for the same failure again
+const SKIP_MS = 15 * 60 * 1000;
+const skippedUntil = {};
+
 const generate = async (input, generationConfig) => {
   let lastError;
-  for (const modelName of MODEL_CHAIN) {
+  const now = Date.now();
+  const available = MODEL_CHAIN.filter((m) => !(skippedUntil[m] > now));
+  for (const modelName of available.length ? available : MODEL_CHAIN) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName, generationConfig }, REQUEST_OPTIONS);
       const result = await model.generateContent(input);
@@ -86,6 +93,7 @@ const generate = async (input, generationConfig) => {
     } catch (error) {
       lastError = error;
       if (!RETRYABLE_STATUS.includes(error?.status)) throw error;
+      skippedUntil[modelName] = Date.now() + SKIP_MS;
       console.warn(`Gemini model ${modelName} unavailable (${error.status}), trying next model`);
     }
   }
