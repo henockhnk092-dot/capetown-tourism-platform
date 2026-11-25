@@ -44,7 +44,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   const count = Math.min(Math.max(Number(params.get('n')) || COUNT, 1), COUNT);
 
   const cache = caches.default;
-  const cacheKey = new Request(new URL(`/api/tours?v=3&q=${encodeURIComponent(q.toLowerCase())}&n=${count}`, request.url));
+  const cacheKey = new Request(new URL(`/api/tours?v=4&q=${encodeURIComponent(q.toLowerCase())}&n=${count}`, request.url));
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
