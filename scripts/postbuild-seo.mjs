@@ -2,7 +2,7 @@
 //  - writes dist/<route>.html for each public page, so link previews and
 //    crawlers that don't run JavaScript see that page's own title and description
 //  - writes dist/sitemap.xml
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { PAGE_SEO, SITE_URL, getPageSEO } from '../src/utils/seo.js';
 
 const dist = new URL('../dist/', import.meta.url);
@@ -28,6 +28,48 @@ const renderPage = (path) => {
   html = setTag(html, /(<meta property="og:url" content=")[^"]*(")/, url);
   html = setTag(html, /(<meta name="twitter:title" content=")[^"]*(")/, title);
   html = setTag(html, /(<meta name="twitter:description" content=")[^"]*(")/, description);
+
+  // Page's own share image (made by scripts/og-images.py), else the site image
+  const slug = path.slice(1);
+  if (slug && existsSync(new URL(`og/${slug}.jpg`, dist))) {
+    const image = `${SITE_URL}/og/${slug}.jpg`;
+    const alt = `${PAGE_SEO[path].title}: capetownplanner.com`;
+    html = setTag(html, /(<meta property="og:image" content=")[^"]*(")/, image);
+    html = setTag(html, /(<meta property="og:image:secure_url" content=")[^"]*(")/, image);
+    html = setTag(html, /(<meta name="twitter:image" content=")[^"]*(")/, image);
+    html = setTag(html, /(<meta property="og:image:alt" content=")[^"]*(")/, alt);
+    html = setTag(html, /(<meta name="twitter:image:alt" content=")[^"]*(")/, alt);
+  }
+
+  // Structured data for search engines: what the page is and where it sits in the site
+  if (!noindex && path !== '/') {
+    const data = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebPage',
+          '@id': `${url}#webpage`,
+          url,
+          name: title,
+          description,
+          inLanguage: 'en-ZA',
+          isPartOf: { '@id': `${SITE_URL}/#website` },
+          primaryImageOfPage: `${SITE_URL}/og/${slug}.jpg`,
+          breadcrumb: { '@id': `${url}#breadcrumb` },
+        },
+        {
+          '@type': 'BreadcrumbList',
+          '@id': `${url}#breadcrumb`,
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+            { '@type': 'ListItem', position: 2, name: PAGE_SEO[path].title, item: url },
+          ],
+        },
+      ],
+    };
+    if (!existsSync(new URL(`og/${slug}.jpg`, dist))) delete data['@graph'][0].primaryImageOfPage;
+    html = html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>\n</head>`);
+  }
   return html;
 };
 

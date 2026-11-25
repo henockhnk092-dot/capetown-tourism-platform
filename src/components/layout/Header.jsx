@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, MapPin, Heart, User, LogOut, Calendar, Receipt, ChevronDown } from 'lucide-react';
+import { Menu, X, Heart, User, LogOut, Calendar, Receipt, ChevronDown } from 'lucide-react';
 import { NAV_GROUPS } from '../../utils/constants';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useAuth } from '../../context/AuthContext';
@@ -112,7 +112,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <MapPin className="h-8 w-8 text-gray-700" />
+            <img src="/favicon.svg" alt="" width="32" height="32" className="h-8 w-8 rounded-lg" />
             <span className="text-lg sm:text-xl font-bold text-gray-900">Cape Town Tourism</span>
           </Link>
 
