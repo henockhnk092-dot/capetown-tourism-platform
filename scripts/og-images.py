@@ -5,6 +5,8 @@ Writes public/og/<page>.jpg. scripts/postbuild-seo.mjs uses the image when it ex
 """
 import base64
 import io
+import json
+import subprocess
 from pathlib import Path
 
 from PIL import Image
@@ -27,7 +29,19 @@ PAGES = {
     'resources': ('images/heroes/resources.jpg', 'Travel resources', 'Cape Town Travel Resources', 'Visas, emergency contacts, useful links and travel tools.'),
     'about': ('images/va-waterfront.jpg', 'About us', 'About Cape Town Planner', 'A free Cape Town travel guide built in Cape Town by HNK IoT Solutions.'),
     'contact': ('images/kirstenbosch.jpg', 'Contact', 'Get in Touch', 'Questions or partnerships: henock@hnkiot.com, WhatsApp +27 61 471 9400.'),
+    'where-to-stay': ('images/heroes/accommodation.jpg', 'Where to stay', 'Best Areas to Stay in Cape Town', 'City Bowl, the Waterfront, Sea Point, Camps Bay and the Winelands, compared.'),
+    'day-trips': ('images/heroes/planner.jpg', 'Day trips', 'Day Trips from Cape Town', "Cape Point and the penguins, the Winelands, Hermanus whales and Chapman's Peak."),
+    'airport': ('images/heroes/transportation.jpg', 'Airport guide', 'Arriving at Cape Town Airport', 'Getting to the city, SIM cards, money and car hire at CPT.'),
+    'best-time-to-visit': ('images/heroes/safety.jpg', 'When to go', 'Best Time to Visit Cape Town', 'Weather, crowds and events, month by month.'),
+    'faq': ('images/heroes/resources.jpg', 'Travel FAQ', 'Cape Town Travel Questions', 'Visas, safety, money, tipping, plugs and getting around.'),
 }
+
+# One image per attraction page, from src/data/guides.js
+places = json.loads(subprocess.run(
+    ['node', '--input-type=module', '-e', "import { PLACES } from './src/data/guides.js'; console.log(JSON.stringify(PLACES))"],
+    cwd=PUBLIC.parent, capture_output=True, text=True, encoding='utf-8', check=True).stdout)
+for place in places:
+    PAGES[f"attractions/{place['slug']}"] = (place['image'].lstrip('/'), 'Attraction guide', place['name'], place['tagline'])
 
 
 def data_uri(path, mime):
@@ -73,6 +87,7 @@ with sync_playwright() as pw:
         page.set_content(page_html(data_uri(photo, 'image/jpeg'), label, title, tagline), wait_until='load')
         page.wait_for_timeout(300)
         image = Image.open(io.BytesIO(page.screenshot())).convert('RGB')
+        (OUT / f'{name}.jpg').parent.mkdir(parents=True, exist_ok=True)
         image.save(OUT / f'{name}.jpg', quality=85, optimize=True)
         print(f'og/{name}.jpg', (OUT / f'{name}.jpg').stat().st_size // 1024, 'KB')
     browser.close()

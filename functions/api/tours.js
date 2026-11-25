@@ -37,28 +37,47 @@ const durationText = (d = {}) => {
 export async function onRequestGet({ request, env, waitUntil }) {
   if (!env.VIATOR_API_KEY) return new Response('Not configured', { status: 503 });
 
+  // Optional search words (e.g. "Robben Island") and number of tours
+  const params = new URL(request.url).searchParams;
+  const q = (params.get('q') || '').trim().slice(0, 40);
+  if (q && !/^[\p{L}\p{N} &'’-]+$/u.test(q)) return new Response('Bad request', { status: 400 });
+  const count = Math.min(Math.max(Number(params.get('n')) || COUNT, 1), COUNT);
+
   const cache = caches.default;
-  const cacheKey = new Request(new URL('/api/tours?v=2', request.url));
+  const cacheKey = new Request(new URL(`/api/tours?v=3&q=${encodeURIComponent(q.toLowerCase())}&n=${count}`, request.url));
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
   const host = env.VIATOR_SANDBOX === '1' ? 'api.sandbox.viator.com' : 'api.viator.com';
-  const upstream = await fetch(`https://${host}/partner/products/search`, {
-    method: 'POST',
-    headers: {
-      'exp-api-key': env.VIATOR_API_KEY,
-      Accept: 'application/json;version=2.0',
-      'Accept-Language': 'en-US',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      filtering: { destination: CAPE_TOWN, rating: { from: 4 } },
-      pagination: { start: 1, count: COUNT },
-      currency: 'ZAR',
-    }),
-  });
+  const headers = {
+    'exp-api-key': env.VIATOR_API_KEY,
+    Accept: 'application/json;version=2.0',
+    'Accept-Language': 'en-US',
+    'Content-Type': 'application/json',
+  };
+  const upstream = q
+    ? await fetch(`https://${host}/partner/search/freetext`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          searchTerm: q,
+          productFiltering: { destination: CAPE_TOWN },
+          searchTypes: [{ searchType: 'PRODUCTS', pagination: { start: 1, count } }],
+          currency: 'ZAR',
+        }),
+      })
+    : await fetch(`https://${host}/partner/products/search`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          filtering: { destination: CAPE_TOWN, rating: { from: 4 } },
+          pagination: { start: 1, count },
+          currency: 'ZAR',
+        }),
+      });
   if (!upstream.ok) return new Response('Tours unavailable', { status: 502 });
-  const body = await upstream.json();
+  const raw = await upstream.json();
+  const body = q ? { products: raw.products?.results || [], totalCount: raw.products?.totalCount } : raw;
 
   const tours = (body.products || [])
     .filter((p) => p.productUrl && p.pricing?.summary?.fromPrice)

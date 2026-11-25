@@ -25,6 +25,12 @@ const Signup = lazy(() => import('./pages/Signup'));
 const Favorites = lazy(() => import('./pages/Favorites'));
 const Flights = lazy(() => import('./pages/Flights'));
 const Earnings = lazy(() => import('./pages/Earnings'));
+const AttractionDetail = lazy(() => import('./pages/AttractionDetail'));
+const WhereToStay = lazy(() => import('./pages/WhereToStay'));
+const Airport = lazy(() => import('./pages/Airport'));
+const DayTrips = lazy(() => import('./pages/DayTrips'));
+const BestTime = lazy(() => import('./pages/BestTime'));
+const FAQ = lazy(() => import('./pages/FAQ'));
 
 function App() {
   return (
@@ -40,6 +46,12 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="attractions" element={<Attractions />} />
+          <Route path="attractions/:slug" element={<AttractionDetail />} />
+          <Route path="where-to-stay" element={<WhereToStay />} />
+          <Route path="airport" element={<Airport />} />
+          <Route path="day-trips" element={<DayTrips />} />
+          <Route path="best-time-to-visit" element={<BestTime />} />
+          <Route path="faq" element={<FAQ />} />
           <Route path="flights" element={<Flights />} />
           <Route path="accommodation" element={<Accommodation />} />
           <Route path="ai-assistant" element={<AIAssistant />} />

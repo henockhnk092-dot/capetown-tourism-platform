@@ -4,28 +4,31 @@ import { TOURS_URL } from '../../utils/partners';
 
 // Popular Cape Town tours with live prices from Viator (via /api/tours).
 // Shows nothing if the tours can't be loaded, so the page never looks broken.
-const ToursSection = () => {
+const ToursSection = ({ query = '', count = 12, title = 'Popular tours and tickets', subtitle = 'Highly rated by travellers. Prices per person, from.', bare = false }) => {
   const [tours, setTours] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/tours', { signal: controller.signal })
+    const params = new URLSearchParams({ n: String(count) });
+    if (query) params.set('q', query);
+    fetch(`/api/tours?${params}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : { tours: [] }))
       .then((data) => setTours(data.tours || []))
       .catch((error) => {
         if (error.name !== 'AbortError') setTours([]);
       });
     return () => controller.abort();
-  }, []);
+  }, [query, count]);
 
   if (tours && tours.length === 0) return null;
+  const headingId = `tours-${(query || 'popular').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" aria-labelledby="tours-heading">
+    <section className={bare ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10'} aria-labelledby={headingId}>
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
         <div>
-          <h2 id="tours-heading" className="text-2xl sm:text-3xl font-bold text-gray-900">Popular tours and tickets</h2>
-          <p className="mt-1 text-gray-600">Highly rated by travellers. Prices per person, from.</p>
+          <h2 id={headingId} className="text-2xl sm:text-3xl font-bold text-gray-900">{title}</h2>
+          <p className="mt-1 text-gray-600">{subtitle}</p>
         </div>
         <a href={TOURS_URL} target="_blank" rel="sponsored noopener" className="inline-flex items-center gap-1.5 font-semibold text-gray-900 underline underline-offset-4">
           See all Cape Town tours <ArrowRight className="h-4 w-4" />
@@ -34,7 +37,7 @@ const ToursSection = () => {
 
       {tours === null ? (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2].slice(0, count).map((i) => (
             <li key={i} className="bg-white rounded-2xl border border-gray-200 overflow-hidden animate-pulse">
               <div className="aspect-[3/2] bg-gray-200" />
               <div className="p-5 space-y-3">

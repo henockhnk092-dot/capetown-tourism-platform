@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Sparkles, Calendar, MessageCircle, Heart, Play, X, Loader2, Users, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowRight, MapPin, Sparkles, Calendar, MessageCircle, Heart, Play, X, Loader2, Users, TrendingUp, ChevronDown, ChevronUp, Plane, BedDouble, Ticket, Car, Sun, HelpCircle } from 'lucide-react';
+import ToursSection from '../components/common/ToursSection';
+import { placeById } from '../data/guides';
+
+// The main trip-planning tasks, shown right under the hero
+const TRIP_TASKS = [
+  { to: '/flights', Icon: Plane, label: 'Flights' },
+  { to: '/where-to-stay', Icon: BedDouble, label: 'Where to stay' },
+  { to: '/day-trips', Icon: Ticket, label: 'Tours & day trips' },
+  { to: '/airport', Icon: Car, label: 'Airport & car hire' },
+  { to: '/best-time-to-visit', Icon: Sun, label: 'Best time to go' },
+  { to: '/faq', Icon: HelpCircle, label: 'Travel FAQ' },
+];
 import { FEATURED_ATTRACTIONS } from '../utils/constants';
 import { useFavorites } from '../context/FavoritesContext';
 import WeatherWidget from '../components/widgets/WeatherWidget';
@@ -142,6 +154,22 @@ Keep it concise and practical.`;
       {/* Hero Carousel */}
       <HeroCarousel />
 
+      {/* Plan your trip: quick links to the main tasks */}
+      <section className="bg-white border-b border-gray-200" aria-labelledby="plan-heading">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h2 id="plan-heading" className="sr-only">Plan your trip</h2>
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {TRIP_TASKS.map(({ to, Icon, label }) => (
+              <li key={to}>
+                <Link to={to} className="flex items-center gap-3 h-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-semibold text-gray-900 hover:border-gray-900 hover:bg-white transition-colors">
+                  <Icon className="h-5 w-5 text-amber-600 shrink-0" /> {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* Weather Widget & Quick Info */}
       <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -272,7 +300,7 @@ Keep it concise and practical.`;
                     />
                   </button>
                 </div>
-                <Link to="/attractions" className="block p-6">
+                <Link to={placeById(attraction.id) ? `/attractions/${placeById(attraction.id).slug}` : '/attractions'} className="block p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-semibold text-gray-900">
                       {attraction.name}
@@ -311,6 +339,11 @@ Keep it concise and practical.`;
           </div>
         </div>
       </section>
+
+      {/* Live tours from Viator */}
+      <div className="bg-gray-50 border-t border-gray-200">
+        <ToursSection count={6} title="Popular Cape Town tours" />
+      </div>
 
       {/* Why Visit Cape Town - Interactive */}
       <section className="py-16 bg-gray-50">

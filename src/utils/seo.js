@@ -1,6 +1,7 @@
 // Page titles and descriptions, shared by the in-app <title> updates (useSEO)
 // and the post-build script that writes per-route HTML for link previews.
 // Plain data only: this file is also imported by Node at build time.
+import { PLACES } from '../data/guides.js';
 
 export const SITE_URL = 'https://capetownplanner.com';
 export const SITE_NAME = 'Cape Town Tourism Platform';
@@ -60,6 +61,31 @@ export const PAGE_SEO = {
     title: 'Cape Town Travel Resources',
     description: 'Useful links, emergency contacts, visa information and travel tools for your Cape Town visit.',
   },
+  '/where-to-stay': {
+    title: 'Where to Stay in Cape Town: Best Areas',
+    description:
+      'The best areas to stay in Cape Town for first visits, beaches, nightlife, families and wine, with pros, cons and live hotel prices.',
+  },
+  '/day-trips': {
+    title: 'Day Trips from Cape Town',
+    description:
+      "Cape Point and the penguins, the Winelands, Hermanus whale watching and Chapman's Peak, with tours and prices.",
+  },
+  '/airport': {
+    title: 'Cape Town Airport Guide: Arriving at CPT',
+    description:
+      'How to get from Cape Town International Airport to the city, plus SIM cards, money, car hire and driving tips.',
+  },
+  '/best-time-to-visit': {
+    title: 'Best Time to Visit Cape Town, Month by Month',
+    description:
+      'Cape Town weather, crowds and events for every month, and the best times for beaches, whales, flowers and value.',
+  },
+  '/faq': {
+    title: 'Cape Town Travel FAQ',
+    description:
+      'Answers about visas, safety, money, tipping, tap water, plugs, load-shedding and getting around Cape Town.',
+  },
   '/contact': {
     title: 'Contact Us',
     description:
@@ -87,6 +113,14 @@ export const PAGE_SEO = {
   '/my-itineraries': { title: 'My Itineraries', noindex: true },
   '/earnings': { title: 'Earnings', noindex: true },
 };
+
+// One page per attraction, from the guide data
+for (const place of PLACES) {
+  PAGE_SEO[`/attractions/${place.slug}`] = {
+    title: `${place.name}: Visitor Guide, Tips and Tours`,
+    description: `${place.tagline} Tips, how to get there, the best time to go and tours with prices.`,
+  };
+}
 
 export function getPageSEO(pathname) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;

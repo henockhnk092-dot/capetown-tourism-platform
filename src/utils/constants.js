@@ -44,7 +44,8 @@ export const IMAGE_CREDITS = [
   { subject: 'Cape Point', author: 'Diego Delso', license: 'CC BY-SA 4.0', source: 'https://commons.wikimedia.org/wiki/File:Cape_Point,_Sud%C3%A1frica,_2018-07-23,_DD_105.jpg' },
   { subject: 'Kirstenbosch', author: 'Rainer Halama', license: 'CC BY-SA 4.0', source: 'https://commons.wikimedia.org/wiki/File:Kirstenbosch_Botanical_Garden-3135.jpg' },
   { subject: 'Kitesurfing in Cape Town', author: 'Anonymous', license: 'CC BY-SA 4.0', source: 'https://commons.wikimedia.org/wiki/File:Kitesurfing_in_Capetown.jpg' },
-  { subject: 'Southern right whale, Hermanus', author: 'Josep M. Gracia', license: 'CC BY-SA 4.0', source: 'https://commons.wikimedia.org/wiki/File:HER_-_Breaching_southern_right_whale_near_Hermanus,_South_Africa,_2017.jpg' }
+  { subject: 'Southern right whale, Hermanus', author: 'Josep M. Gracia', license: 'CC BY-SA 4.0', source: 'https://commons.wikimedia.org/wiki/File:HER_-_Breaching_southern_right_whale_near_Hermanus,_South_Africa,_2017.jpg' },
+  { subject: 'Cape Winelands', author: 'Unsplash contributor', license: 'Unsplash License', source: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb' }
 ];
 
 // Color Palette (Cape Town Theme)
@@ -151,7 +152,7 @@ export const FEATURED_ATTRACTIONS = [
     rating: 4.8,
     reviewCount: 15420,
     priceRange: 'midrange',
-    image: 'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800',
+    image: '/images/heroes/attractions.jpg',
     description: 'Iconic flat-topped mountain with cable car access and stunning views',
     location: 'Table Mountain National Park',
     duration: '3-4 hours',
@@ -216,7 +217,7 @@ export const FEATURED_ATTRACTIONS = [
     rating: 4.8,
     reviewCount: 11200,
     priceRange: 'midrange',
-    image: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800',
+    image: '/images/winelands.jpg',
     description: 'Stunning vineyards with world-class wine tasting',
     location: 'Stellenbosch & Franschhoek',
     duration: 'Full day',
@@ -238,7 +239,12 @@ export const NAV_ITEMS = [
   { name: 'Events Calendar', path: '/events', icon: '🎉' },
   { name: 'Resources', path: '/resources', icon: '📚' },
   { name: 'About', path: '/about', icon: 'ℹ️' },
-  { name: 'Contact', path: '/contact', icon: '📧' }
+  { name: 'Contact', path: '/contact', icon: '📧' },
+  { name: 'Where to Stay', path: '/where-to-stay', icon: '🏘️' },
+  { name: 'Day Trips', path: '/day-trips', icon: '🚗' },
+  { name: 'Airport Guide', path: '/airport', icon: '🛬' },
+  { name: 'Best Time to Visit', path: '/best-time-to-visit', icon: '☀️' },
+  { name: 'FAQ', path: '/faq', icon: '❓' }
 ];
 
 // Header menu: the same groups are used on desktop (dropdowns) and mobile (sections)
@@ -247,15 +253,15 @@ export const NAV_GROUPS = [
   { name: 'Home', path: '/' },
   {
     name: 'Explore',
-    items: ['/attractions', '/accommodation', '/events', '/blog'].map(navItem),
+    items: ['/attractions', '/day-trips', '/where-to-stay', '/accommodation', '/events', '/blog'].map(navItem),
   },
   {
     name: 'Plan',
-    items: ['/flights', '/ai-assistant', '/planner', '/transportation'].map(navItem),
+    items: ['/flights', '/airport', '/transportation', '/best-time-to-visit', '/planner', '/ai-assistant'].map(navItem),
   },
   {
     name: 'Travel Info',
-    items: ['/safety', '/resources', '/about'].map(navItem),
+    items: ['/faq', '/safety', '/resources', '/about'].map(navItem),
   },
   { name: 'Contact', path: '/contact' },
 ];

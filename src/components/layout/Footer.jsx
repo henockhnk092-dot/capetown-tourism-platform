@@ -43,6 +43,19 @@ const Footer = () => {
           <div className="col-span-1">
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
+              {[
+                ['/where-to-stay', 'Where to Stay'],
+                ['/day-trips', 'Day Trips'],
+                ['/airport', 'Airport Guide'],
+                ['/best-time-to-visit', 'Best Time to Visit'],
+                ['/faq', 'Travel FAQ'],
+              ].map(([to, label]) => (
+                <li key={to}>
+                  <Link to={to} className="text-gray-400 hover:text-white text-sm transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link to="/safety" className="text-gray-400 hover:text-white text-sm transition-colors">
                   Safety Tips

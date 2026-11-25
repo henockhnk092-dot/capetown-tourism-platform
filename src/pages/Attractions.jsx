@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { placeById } from '../data/guides';
 import { Search, Ticket, Filter, MapPin, Star, Clock, DollarSign, X, Map as MapIcon, List } from 'lucide-react';
 import { FEATURED_ATTRACTIONS, ATTRACTION_CATEGORIES, PRICE_RANGES } from '../utils/constants';
 import { useFavorites } from '../context/FavoritesContext';
@@ -287,12 +289,21 @@ const Attractions = () => {
                         ({attraction.reviewCount.toLocaleString()})
                       </span>
                     </div>
-                    <button
-                      onClick={() => openDetailsModal(attraction)}
-                      className="text-gray-900 font-semibold text-sm hover:underline"
-                    >
-                      View Details →
-                    </button>
+                    {placeById(attraction.id) ? (
+                      <Link
+                        to={`/attractions/${placeById(attraction.id).slug}`}
+                        className="text-gray-900 font-semibold text-sm hover:underline"
+                      >
+                        View Details →
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => openDetailsModal(attraction)}
+                        className="text-gray-900 font-semibold text-sm hover:underline"
+                      >
+                        View Details →
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
