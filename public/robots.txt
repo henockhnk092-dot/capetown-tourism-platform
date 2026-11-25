@@ -6,5 +6,6 @@ Disallow: /profile
 Disallow: /favorites
 Disallow: /my-bookings
 Disallow: /my-itineraries
+Disallow: /earnings
 
 Sitemap: https://capetownplanner.com/sitemap.xml

@@ -85,6 +85,7 @@ export const PAGE_SEO = {
   '/favorites': { title: 'My Favorites', noindex: true },
   '/my-bookings': { title: 'My Bookings', noindex: true },
   '/my-itineraries': { title: 'My Itineraries', noindex: true },
+  '/earnings': { title: 'Earnings', noindex: true },
 };
 
 export function getPageSEO(pathname) {

@@ -24,6 +24,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Favorites = lazy(() => import('./pages/Favorites'));
 const Flights = lazy(() => import('./pages/Flights'));
+const Earnings = lazy(() => import('./pages/Earnings'));
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
           <Route path="my-itineraries" element={<MyItineraries />} />
           <Route path="my-bookings" element={<MyBookings />} />
           <Route path="favorites" element={<Favorites />} />
+          <Route path="earnings" element={<Earnings />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route

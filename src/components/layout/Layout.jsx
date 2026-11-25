@@ -7,7 +7,7 @@ import useSEO from '../../hooks/useSEO';
 import Toaster from '../common/Toaster';
 import ConsentBanner from '../common/ConsentBanner';
 
-const PRIVATE_PAGE = /^\/(login|signup|profile|favorites|my-bookings|my-itineraries)(\/|$)/;
+const PRIVATE_PAGE = /^\/(login|signup|profile|favorites|my-bookings|my-itineraries|earnings)(\/|$)/;
 
 const Layout = () => {
   useSEO();
