@@ -4,12 +4,12 @@
 import { PLACES } from '../data/guides.js';
 
 export const SITE_URL = 'https://capetownplanner.com';
-export const SITE_NAME = 'Cape Town Tourism Platform';
+export const SITE_NAME = 'Cape Town Planner';
 export const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 export const PAGE_SEO = {
   '/': {
-    title: 'Cape Town Tourism Platform | Plan Your Cape Town Trip',
+    title: 'Cape Town Planner | Plan Your Cape Town Trip',
     description:
       'Plan your Cape Town trip: top attractions, places to stay, events, safety tips, transport and a free AI travel assistant. Built by HNK IoT Solutions.',
   },
@@ -89,20 +89,20 @@ export const PAGE_SEO = {
   '/contact': {
     title: 'Contact Us',
     description:
-      'Contact HNK IoT Solutions about the Cape Town Tourism Platform: henock@hnkiot.com or WhatsApp +27 61 471 9400.',
+      'Contact HNK IoT Solutions about the Cape Town Planner: henock@hnkiot.com or WhatsApp +27 61 471 9400.',
   },
   '/about': {
     title: 'About the Platform',
     description:
-      'About the Cape Town Tourism Platform and the team behind it, HNK IoT Solutions (Pty) Ltd in Cape Town.',
+      'About the Cape Town Planner and the team behind it, HNK IoT Solutions (Pty) Ltd in Cape Town.',
   },
   '/privacy': {
     title: 'Privacy Policy',
-    description: 'How the Cape Town Tourism Platform collects, uses and protects your personal information under POPIA.',
+    description: 'How the Cape Town Planner collects, uses and protects your personal information under POPIA.',
   },
   '/terms': {
     title: 'Terms of Service',
-    description: 'The terms that apply when you use the Cape Town Tourism Platform.',
+    description: 'The terms that apply when you use the Cape Town Planner.',
   },
   // Account pages: useful titles, but kept out of search results
   '/login': { title: 'Log In', noindex: true },

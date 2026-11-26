@@ -4,7 +4,7 @@
 // checked with Firebase Auth and the email goes only to that account's verified address.
 // Secrets: RESEND_API_KEY. Plain variable: FIREBASE_WEB_API_KEY (public web key).
 
-const FROM = 'Cape Town Tourism <bookings@hnkiot.com>';
+const FROM = 'Cape Town Planner <bookings@hnkiot.com>';
 const HNK_COPY = 'henock@hnkiot.com';
 const ALLOWED_ORIGINS = ['https://capetownplanner.com', 'https://capetown.hnkiot.com', 'https://capetown-tourism.pages.dev'];
 
@@ -64,7 +64,7 @@ export async function onRequestPost({ request, env }) {
 <p style="margin:0 0 16px;font-size:14px;color:#374151">Nothing is charged online: you pay the venue directly once your booking is confirmed.</p>
 <p style="margin:0;font-size:14px"><a href="https://capetownplanner.com/my-bookings" style="color:#111827;font-weight:600">View My Bookings</a></p>
 <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">
-<p style="margin:0;font-size:12px;color:#6b7280">Cape Town Tourism Platform by HNK IoT Solutions · henock@hnkiot.com · WhatsApp +27 61 471 9400</p>
+<p style="margin:0;font-size:12px;color:#6b7280">Cape Town Planner by HNK IoT Solutions · henock@hnkiot.com · WhatsApp +27 61 471 9400</p>
 </div></div></body></html>`;
 
   const text = [

@@ -133,7 +133,7 @@ const downloadCalendarFile = (event) => {
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//HNK IoT Solutions//Cape Town Tourism Platform//EN',
+    'PRODID:-//HNK IoT Solutions//Cape Town Planner//EN',
     'BEGIN:VEVENT',
     `UID:event-${event.id}-${event.startDate}@capetownplanner.com`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,

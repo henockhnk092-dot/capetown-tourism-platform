@@ -31,7 +31,7 @@ export const exportItineraryToPDF = (days, budget = null) => {
   // Add watermark
   doc.setFontSize(8);
   doc.setTextColor(200, 200, 200);
-  doc.text('Created with Cape Town Tourism Platform', pageWidth / 2, pageHeight - 10, { align: 'center' });
+  doc.text('Created with Cape Town Planner', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
   let currentY = 40;
 

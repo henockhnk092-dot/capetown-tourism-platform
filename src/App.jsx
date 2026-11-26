@@ -79,7 +79,7 @@ function App() {
                   <p className="mb-4">Last updated: November 2026</p>
                   <h2 className="text-2xl font-semibold mt-6 mb-4">Introduction</h2>
                   <p className="mb-4">
-                    Welcome to Cape Town Tourism Platform, operated by {BUSINESS.legalName}, Cape Town,
+                    Welcome to Cape Town Planner, operated by {BUSINESS.legalName}, Cape Town,
                     South Africa. We respect your privacy and are committed to protecting your personal
                     data in line with the Protection of Personal Information Act (POPIA).
                   </p>
@@ -141,7 +141,7 @@ function App() {
                   <p className="mb-4">Last updated: November 2026</p>
                   <h2 className="text-2xl font-semibold mt-6 mb-4">Acceptance of Terms</h2>
                   <p className="mb-4">
-                    Cape Town Tourism Platform is operated by {BUSINESS.legalName}. By accessing and using
+                    Cape Town Planner is operated by {BUSINESS.legalName}. By accessing and using
                     the platform, you accept and agree to be bound by the terms and provisions of this
                     agreement.
                   </p>

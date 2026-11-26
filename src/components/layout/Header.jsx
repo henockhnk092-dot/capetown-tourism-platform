@@ -113,7 +113,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img src="/favicon.svg" alt="" width="32" height="32" className="h-8 w-8 rounded-lg" />
-            <span className="text-lg sm:text-xl font-bold text-gray-900">Cape Town Tourism</span>
+            <span className="text-lg sm:text-xl font-bold text-gray-900">Cape Town Planner</span>
           </Link>
 
           {/* Desktop Navigation */}

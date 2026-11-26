@@ -15,7 +15,7 @@ const Footer = () => {
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <MapPin className="h-6 w-6 text-blue-400" />
-              <span className="text-lg font-bold">Cape Town Tourism</span>
+              <span className="text-lg font-bold">Cape Town Planner</span>
             </div>
             <p className="text-gray-400 text-sm">
               Your ultimate guide to exploring the beauty, culture, and adventures of Cape Town, South Africa.
@@ -124,7 +124,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
               <p className="text-gray-400 text-sm">
-                © {currentYear} Cape Town Tourism Platform. All rights reserved.
+                © {currentYear} Cape Town Planner. All rights reserved.
               </p>
               <a
                 href={BUSINESS.website}

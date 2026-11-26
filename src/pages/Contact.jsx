@@ -109,7 +109,7 @@ const Contact = () => {
                     {BUSINESS.phone}
                   </a>
                   <a
-                    href={`${BUSINESS.whatsapp}?text=${encodeURIComponent('Hi HNK IoT Solutions, I have a question about the Cape Town Tourism Platform.')}`}
+                    href={`${BUSINESS.whatsapp}?text=${encodeURIComponent('Hi HNK IoT Solutions, I have a question about the Cape Town Planner.')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-green-700 hover:underline"
