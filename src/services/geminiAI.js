@@ -5,9 +5,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // or the Vite dev proxy locally), which adds the real API key on the server.
 // The placeholder below is only there because the SDK requires a key value.
 const genAI = new GoogleGenerativeAI('server-side-key');
-const REQUEST_OPTIONS = {
-  baseUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/api/gemini`,
-};
+const BASE_URL = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/gemini`;
+// A model that hangs is abandoned after this long and the next model is tried
+const CHAT_TIMEOUT_MS = 15000;
+const LONG_TIMEOUT_MS = 60000;
 
 // System context for Cape Town tourism
 const TOURISM_CONTEXT = `You are a friendly Cape Town tourism expert assistant.
@@ -62,7 +63,7 @@ CRITICAL: Keep every response SHORT, SCANNABLE, and under 5 lines total!`;
 
 // Models are tried in order. Google retires model versions and the newest
 // ones are sometimes overloaded (503), so we fall back to the next one.
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'];
+const MODEL_CHAIN = ['gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-flash-latest'];
 const RETRYABLE_STATUS = [404, 429, 500, 503];
 
 // Short chat answers. Newer models count "thinking" tokens against
@@ -81,20 +82,21 @@ Use **bold** for place names, clear headings and bullet points. Give real place 
 const SKIP_MS = 15 * 60 * 1000;
 const skippedUntil = {};
 
-const generate = async (input, generationConfig) => {
+const generate = async (input, generationConfig, timeout = CHAT_TIMEOUT_MS) => {
   let lastError;
   const now = Date.now();
   const available = MODEL_CHAIN.filter((m) => !(skippedUntil[m] > now));
   for (const modelName of available.length ? available : MODEL_CHAIN) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName, generationConfig }, REQUEST_OPTIONS);
+      const model = genAI.getGenerativeModel({ model: modelName, generationConfig }, { baseUrl: BASE_URL, timeout });
       const result = await model.generateContent(input);
       return result.response.text();
     } catch (error) {
       lastError = error;
-      if (!RETRYABLE_STATUS.includes(error?.status)) throw error;
+      // No status means a timeout or network failure: also try the next model
+      if (error?.status && !RETRYABLE_STATUS.includes(error.status)) throw error;
       skippedUntil[modelName] = Date.now() + SKIP_MS;
-      console.warn(`Gemini model ${modelName} unavailable (${error.status}), trying next model`);
+      console.warn(`Gemini model ${modelName} unavailable (${error?.status || 'timeout'}), trying next model`);
     }
   }
   throw lastError;
@@ -145,7 +147,7 @@ Please provide:
 
 Format the response in a clear, structured way that can be easily saved and followed.`;
 
-    return await generate(prompt, LONG_CONFIG);
+    return await generate(prompt, LONG_CONFIG, LONG_TIMEOUT_MS);
   } catch (error) {
     console.error('Error generating itinerary:', error);
     throw new Error('Failed to generate itinerary. Please try again.');
@@ -165,7 +167,7 @@ If you recognize a landmark, provide:
 
 If it's not a recognizable Cape Town landmark, provide general information about what the image shows.`;
 
-    return await generate([prompt, imageData], LONG_CONFIG);
+    return await generate([prompt, imageData], LONG_CONFIG, LONG_TIMEOUT_MS);
   } catch (error) {
     console.error('Error identifying landmark:', error);
     throw new Error('Failed to analyze image. Please try again.');
@@ -194,7 +196,7 @@ Provide:
 
 Present this in a clear, actionable format.`;
 
-    return await generate(prompt, LONG_CONFIG);
+    return await generate(prompt, LONG_CONFIG, LONG_TIMEOUT_MS);
   } catch (error) {
     console.error('Error generating budget plan:', error);
     throw new Error('Failed to generate budget plan. Please try again.');
@@ -218,7 +220,7 @@ Recommend:
 
 Keep it concise and actionable.`;
 
-    return await generate(prompt, LONG_CONFIG);
+    return await generate(prompt, LONG_CONFIG, LONG_TIMEOUT_MS);
   } catch (error) {
     console.error('Error getting weather recommendations:', error);
     throw new Error('Failed to get recommendations. Please try again.');
